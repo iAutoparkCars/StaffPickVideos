@@ -8,8 +8,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.vimeo.networking.Configuration;
+import com.vimeo.networking.GsonDeserializer;
 import com.vimeo.networking.VimeoClient;
 import com.vimeo.networking.callbacks.AuthCallback;
+import com.vimeo.networking.callbacks.ModelCallback;
+import com.vimeo.networking.model.Video;
+import com.vimeo.networking.model.VideoList;
 import com.vimeo.networking.model.error.VimeoError;
 
 import org.apache.http.HttpEntity;
@@ -63,13 +67,45 @@ public class MainActivity extends AppCompatActivity {
         mListView = (ListView) findViewById(R.id.activity_main_listview);
         mAdapter = new VideoAdapter(this, R.id.list_item_video_name_textview, items);
         mListView.setAdapter(mAdapter);
+
+        String baseUri = "https://api.vimeo.com/channels/staffpicks/videos";
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         new StaffPicksAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        //getVideoList("/staffpicks/videos");
+    }
+
+    private void getVideoList(String baseUri){
+
+        mApiClient.fetchNetworkContent(baseUri, new ModelCallback<VideoList>(VideoList.class) {
+            @Override
+            public void success(VideoList videoList) {
+                if (videoList != null && videoList.data != null && !videoList.data.isEmpty()) {
+                    Video video = videoList.data.get(0); // just an example of getting the first video
+                    Log.d(TAG, "GOT VIDEOS SUCCESS");
+                }
+            }
+
+            @Override
+            public void failure(VimeoError error) {
+                // voice the error
+                Log.e(TAG, "getVideos error: " + error);
+            }
+        });
+
     }
 
     private void configureVimeoAuthentication(){
         Configuration.Builder configBuilder =
                 new Configuration.Builder(CLIENT_ID, CLIENT_SECRET, "public")
-                        .setCacheDirectory(this.getCacheDir());
+                        .setCacheDirectory(this.getCacheDir()).setGsonDeserializer(new GsonDeserializer());
         VimeoClient.initialize(configBuilder.build());
     }
 
@@ -97,6 +133,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected ArrayList<JSONObject> doInBackground(Void... params) {
+
+            int start_page = 1;
+            int per_page = 10;
+            GetVideosTask task = new GetVideosTask(start_page, per_page);
+            task.getVideos("/channels/staffpicks/videos?page=1&per_page=15");
+
+            //getVideoList("/staffpicks/videos");
+
             //String url = "https://api.vimeo.com/channels/staffpicks/videos";
 
             String url = "https://api.vimeo.com/channels/premieres/videos";
