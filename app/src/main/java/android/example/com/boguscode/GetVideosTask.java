@@ -9,6 +9,7 @@ import com.vimeo.networking.model.VideoList;
 import com.vimeo.networking.model.error.VimeoError;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Steven on 11/7/2017.
@@ -16,21 +17,41 @@ import java.util.ArrayList;
 
 public class GetVideosTask {
 
-    public int page;
-    public final int per_page;
+        // page first calls 1, then increments as user requests more pages
+    private int page;
+    private final int per_page;
+    private int total = 0;
+    private List<Video> vidList = null;
+    private int max_page;
 
+        // getters
+    public int getPage() {return page;}
+    public int getPer_page() {
+        return per_page;
+    }
+    public List<Video> getVidList() { return vidList; }
 
-    public GetVideosTask(int page, int per_page){
-        this.page = page;
+    public GetVideosTask(int per_page){
+        this.page = 0;
         this.per_page = per_page;
     }
     private final String TAG = getClass().getName();
 
-    public void getVideos(String uri){
+        // if this function returns null, print at bottom of Video Reccycler List that there are no more videos to load.
+    public List<Video> getVideos(String uri){
+
+            // decide whether to proceed. If max_page reached, don't make any GET requests
+        page++;
+        if (totalNumberResultsInitialized()){
+            max_page = (int) Math.ceil(  ((double)total/(double)per_page) );
+            if (page > max_page)
+                return null;
+        }
 
             // "/channels/<channel_name>/videos?page=1&per_page=15"
         String refinedUri = new StringBuilder(uri)
           .append("?page=").append(page).append("&per_page=").append(per_page).toString();
+        Log.d(TAG, "url: " + refinedUri);
 
         if (VimeoClient.getInstance() == null)
             Log.e(TAG, "VIMEO CLIENT IS NULL");
@@ -40,19 +61,25 @@ public class GetVideosTask {
             @Override
             public void success(VideoList videoList) {
                 if (videoList != null && videoList.data != null && !videoList.data.isEmpty()) {
-                    // Create array of Vimeo Videos called videos
-                    ArrayList<Video> videos = new ArrayList<>();
 
+                        /* Pass total # of results (total should not change) on 1st success.
+                           update the # page fetched. Page cannot surpass max page.
+                        */
+                    total = videoList.total;
+
+                        // Create List of Vimeo Videos
+                    List<Video> videos = new ArrayList<>();
                     Log.d(TAG, "GOT VIDEOS SUCCESS");
-                    // For Vimeo video represented as Vimeo response data in the Json
 
                     int i = 1;
                     for(Video video : videoList.data) {
-                        // Add Vimeo video to videos array previously created
-                        Log.d(TAG, i + " name: " + video.name);
+                        // Add Vimeo video to videos List
+                        Log.d(TAG, i+": " + video.name);
                         videos.add(video);
                         i++;
                     }
+
+                    vidList = videos;
                 }
             }
 
@@ -62,9 +89,13 @@ public class GetVideosTask {
             }
         });
 
-
-
+        /*for (Video vid : vidList){
+            Log.d(TAG, vid.name);
+        }*/
+        return vidList;
     }
 
-
+    public boolean totalNumberResultsInitialized(){
+        return (total!=0);
+    }
 }

@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,11 +60,20 @@ public class MainActivity extends AppCompatActivity {
         configureVimeoAuthentication();
         mApiClient = VimeoClient.getInstance();
 
-        // ---- Client Credentials Auth ----
+        // ---- Client Credentials Authenticate ----
         if (mApiClient.getVimeoAccount().getAccessToken() == null) {
-            // If there is no access token, fetch one on first app open
-            authenticateWithClientCredentials();
+
+                // If there is no access token, fetch one on a synchronized thread
+            Thread authThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    authenticateWithClientCredentials();
+                }
+            });
+            authThread.start();
         }
+
+        Log.d(TAG, "Resuming main thread for onCreate");
 
         mListView = (ListView) findViewById(R.id.activity_main_listview);
         mAdapter = new VideoAdapter(this, R.id.list_item_video_name_textview, items);
@@ -70,36 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
         String baseUri = "https://api.vimeo.com/channels/staffpicks/videos";
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
         new StaffPicksAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         //getVideoList("/staffpicks/videos");
-    }
-
-    private void getVideoList(String baseUri){
-
-        mApiClient.fetchNetworkContent(baseUri, new ModelCallback<VideoList>(VideoList.class) {
-            @Override
-            public void success(VideoList videoList) {
-                if (videoList != null && videoList.data != null && !videoList.data.isEmpty()) {
-                    Video video = videoList.data.get(0); // just an example of getting the first video
-                    Log.d(TAG, "GOT VIDEOS SUCCESS");
-                }
-            }
-
-            @Override
-            public void failure(VimeoError error) {
-                // voice the error
-                Log.e(TAG, "getVideos error: " + error);
-            }
-        });
-
     }
 
     private void configureVimeoAuthentication(){
@@ -112,12 +96,13 @@ public class MainActivity extends AppCompatActivity {
     // You can't make any requests to the api without an access token. This will get you a basic
     // "Client Credentials" grant which will allow you to make requests. This requires a client id and client secret.
     private void authenticateWithClientCredentials() {
+
         VimeoClient.getInstance().authorizeWithClientCredentialsGrant(new AuthCallback() {
             @Override
             public void success() {
                 String accessToken = VimeoClient.getInstance().getVimeoAccount().getAccessToken();
-                Log.d(TAG, "Client Credentials Authorization Success with Access Token: " + accessToken);
                 ACCESS_TOKEN = accessToken;
+                Log.d(TAG, "Client Credentials Authorization Success with Access Token: " + accessToken);
             }
 
             @Override
@@ -134,13 +119,24 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected ArrayList<JSONObject> doInBackground(Void... params) {
 
-            int start_page = 1;
-            int per_page = 10;
-            GetVideosTask task = new GetVideosTask(start_page, per_page);
-            task.getVideos("/channels/staffpicks/videos?page=1&per_page=15");
+            int per_page = 5;
+
+            GetVideosTask getStaffVidsTask = new GetVideosTask (per_page);
+            List<Video> staffVids = getStaffVidsTask.getVideos("/channels/staffpicks/videos");
+
+            GetVideosTask getPremiereVidsTask = new GetVideosTask (per_page);
+            List<Video> premiereVids = getPremiereVidsTask.getVideos("/channels/premieres/videos");
+
+            GetVideosTask getBestMonthVidsTask = new GetVideosTask (per_page);
+            List<Video> bestMonthVids = getBestMonthVidsTask.getVideos("/channels/bestofthemonth/videos");
+
+            GetVideosTask getBestYearVidsTask = new GetVideosTask (per_page);
+            List<Video> bestYearVids = getBestYearVidsTask.getVideos("/channels/bestoftheyear/videos");
+
+
+
 
             //getVideoList("/staffpicks/videos");
-
             //String url = "https://api.vimeo.com/channels/staffpicks/videos";
 
             String url = "https://api.vimeo.com/channels/premieres/videos";
