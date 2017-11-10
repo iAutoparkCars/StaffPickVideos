@@ -4,11 +4,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.vimeo.networking.VimeoClient;
+import com.vimeo.networking.callbacks.ModelCallback;
 import com.vimeo.networking.model.Video;
+import com.vimeo.networking.model.VideoList;
+import com.vimeo.networking.model.error.VimeoError;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
+import retrofit2.Call;
 
 /**
  * Created by Steven on 11/7/2017.
@@ -23,10 +28,12 @@ public class GetVideosTask {
     private List<Video> vidList;
     private int max_page;
     private String uri;
+
         // observable to notify main thread data is ready
     private Observable<String> observableTask;
     AppCompatActivity activity;
     OnTaskCompleted listener;
+    private CallBacks callbacks;
 
         // getters
     public int getPage() {return page;}
@@ -35,13 +42,12 @@ public class GetVideosTask {
     }
     public List<Video> getVidList() { return vidList; }
     public Observable<String> getObservableTask() { return this.observableTask; }
-
+    public CallBacks getCallback() {return this.callbacks; }
 
 
     public GetVideosTask(int per_page, String uri){
         this.page = 0;
         this.per_page = per_page;
-        this.observableTask =  Observable.just("Hello");
         this.uri = uri;
     }
 
@@ -56,7 +62,6 @@ public class GetVideosTask {
     public GetVideosTask(int per_page, String uri, OnTaskCompleted listener){
         this.page = 0;
         this.per_page = per_page;
-        this.observableTask =  Observable.just("Hello");
         this.uri = uri;
         this.listener = listener;
     }
@@ -82,9 +87,10 @@ public class GetVideosTask {
         if (VimeoClient.getInstance() == null)
             Log.e(TAG, "VIMEO CLIENT IS NULL");
 
-        VimeoClient.getInstance().fetchNetworkContent(refinedUri, new CallBacks(this.listener));
+        //callbacks = new CallBacks(this.listener);
+        //VimeoClient.getInstance().fetchNetworkContent(refinedUri, callbacks);
 
-        /*VimeoClient.getInstance().fetchNetworkContent(refinedUri,
+        VimeoClient.getInstance().fetchNetworkContent(refinedUri,
 
                 // ModelCallback all runs on Main thread
                 new ModelCallback<VideoList>(VideoList.class) {
@@ -93,13 +99,13 @@ public class GetVideosTask {
             public void success(VideoList videoList) {
                 if (videoList != null && videoList.data != null && !videoList.data.isEmpty()) {
 
-                        *//* Pass total # of results (total should not change) on 1st success.
+                        /* Pass total # of results (total should not change) on 1st success.
                            update the # page fetched. Page cannot surpass max page.
-                        *//*
+                        */
                     total = videoList.total;
 
                         // Create List of Vimeo Videos
-                    List<Video> videos = new ArrayList<>();
+                    List<Video> videos = new ArrayList<Video>();
                     Log.d(TAG, "GOT VIDEOS SUCCESS");
 
                     for(Video video : videoList.data) {
@@ -109,9 +115,8 @@ public class GetVideosTask {
                     }
 
                     vidList = videos;
-                    observableTask =  Observable.just("Hello");
+                    observableTask = Observable.just("Hello");
                     Log.d(TAG, "id: " + Thread.currentThread().getId());
-                    MainActivity.getVideos(videos);
                 }
             }
 
@@ -119,16 +124,10 @@ public class GetVideosTask {
             public void failure(VimeoError error) {
                 Log.e(TAG, "downloadVideos error: " + error);
             }
+        });
 
-        });*/
-
-        /*for (Video vid : vidList){
-            Log.d(TAG, vid.name);
-        }*/
         return vidList;
     }
-
-
 
     public boolean totalNumberResultsInitialized(){
         return (total!=0);

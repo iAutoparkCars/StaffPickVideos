@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.Observer;
 import retrofit2.Callback;
 
 /**
@@ -40,7 +41,9 @@ public class CallBacks extends ModelCallback<VideoList> implements Callback<Vide
                 //Log.d(TAG, i+": " + video.name);
                 videos.add(video);
             }
-            listener.onDownloadTaskCompleted(videos);
+
+            //listener.onDownloadTaskCompleted(videos);
+
         }
     }
 

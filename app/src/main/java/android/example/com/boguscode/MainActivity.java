@@ -11,6 +11,7 @@ import com.vimeo.networking.GsonDeserializer;
 import com.vimeo.networking.VimeoClient;
 import com.vimeo.networking.callbacks.AuthCallback;
 import com.vimeo.networking.model.Video;
+import com.vimeo.networking.model.VideoList;
 import com.vimeo.networking.model.error.VimeoError;
 
 import org.json.JSONObject;
@@ -115,8 +116,31 @@ public class MainActivity extends AppCompatActivity{
 
                 //new GetVidsAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
+                Log.d(TAG, "Started downloading videos");
+
+            getStaffVidsTask.getObservableTask().subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(String value) {
+                        Log.e(TAG, "onNext called: " + value);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError called: " + e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "onComplete called");
+                    }
+                });
+
                 // ---- Subscribe to the networking tasks ----
-                getVideosObservable(getStaffVidsTask)
+                /*getVideosObservable(getStaffVidsTask)
                         //.subscribeOn(Schedulers.io())
                         //.observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Observer<List<Video>> () {
@@ -138,7 +162,7 @@ public class MainActivity extends AppCompatActivity{
                             public void onComplete() {
                                 Log.d(TAG, "onComplete called");
                             }
-                        });
+                        });*/
         }
 
         mListView = (ListView) findViewById(R.id.activity_main_listview);
@@ -201,7 +225,18 @@ public class MainActivity extends AppCompatActivity{
         return vidList;
     }
 
-        // this method won't execute until there's a subscriber
+        /*this method won't execute until there's a subscriber
+
+
+          it's likely this method has to be called in the success method inCallBacks class
+          the (model) CallBacks class
+
+          the getVideosObservable method will not run anything until there is a subscriber,
+          so I do subscribe in the on success??
+
+          I just know that in the success() function I have to call Observable.just
+        */
+
     public Observable<List<Video>> getVideosObservable(GetVideosTask task){
         final GetVideosTask t = task;
         return Observable.defer(new Callable<ObservableSource<? extends List<Video>>>() {
