@@ -25,4 +25,9 @@ dependencies {
 
         // Vimeo's own Android library
     compile 'com.vimeo.networking:vimeo-networking:1.1.0'
+
+        // Reactive library to handle async calls
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+
 }

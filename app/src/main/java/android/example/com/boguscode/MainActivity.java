@@ -5,36 +5,38 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.vimeo.networking.Configuration;
 import com.vimeo.networking.GsonDeserializer;
 import com.vimeo.networking.VimeoClient;
 import com.vimeo.networking.callbacks.AuthCallback;
-import com.vimeo.networking.callbacks.ModelCallback;
 import com.vimeo.networking.model.Video;
-import com.vimeo.networking.model.VideoList;
 import com.vimeo.networking.model.error.VimeoError;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Callable;
 
-public class MainActivity extends AppCompatActivity {
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+
+public class MainActivity extends AppCompatActivity{
+
+    static List<Video> list;
+    public static void getVideos(List<Video> video){
+        list = video;
+    };
+
 
         // realistically, this would be stored somewhere more safe
     private String ACCESS_TOKEN = "b529a655ff2fc32a8b58bf2b405f39b0";
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private final String CLIENT_ID = "de892f6652ca3657e278db46cd3af801465643e8";
     private final String CLIENT_SECRET = "ZlxBVGjMRLFCC9GIkf0JPwqvssHTFbbYNu56RwiPtplSFR1PWBTdjZkfTSfrdjXA8p" +
                                          "HVGt1U6vtP7NQekqs8FmXnTdr3ub5DpHp4os0fUGcQ10liWfrTALtP850zicpX";
-
+    private final int PER_PAGE = 10;
     private VimeoClient mApiClient;
 
     public final String TAG = getClass().getName();
@@ -50,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
     private ListView mListView;
     private VideoAdapter mAdapter;
     private ArrayList<JSONObject> items = new ArrayList<>();
+
+    GetVideosTask getStaffVidsTask;
+    GetVideosTask getPremiereVidsTask;
+    GetVideosTask getBestMonthVidsTask;
+    GetVideosTask getBestYearVidsTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,20 +67,79 @@ public class MainActivity extends AppCompatActivity {
         configureVimeoAuthentication();
         mApiClient = VimeoClient.getInstance();
 
+        getStaffVidsTask = new GetVideosTask(PER_PAGE, "/channels/staffpicks/videos", new OnTaskCompleted() {
+            @Override
+            public void onDownloadTaskCompleted(List<Video> videos) {
+                for (Video vid : videos){
+                    Log.d(TAG, vid.name);
+                }
+            }
+        });
+
+        getPremiereVidsTask = new GetVideosTask (PER_PAGE, "/channels/premieres/videos");
+        getBestMonthVidsTask = new GetVideosTask (PER_PAGE, "/channels/bestofthemonth/videos");
+        getBestYearVidsTask = new GetVideosTask (PER_PAGE, "/channels/bestoftheyear/videos");
+
+        //Log.d(TAG, "id: " + Thread.currentThread().getId());
+
+
+
+
+        /*getStaffVidsTask.getObservableTask().subscribe(new Observer<String>() {
+            @Override
+            public void onSubscribe(Disposable d) {}
+
+            @Override
+            public void onNext(String value) {
+                Log.d(TAG, "onNext called with value: " + value);
+                //List<Video> list = getStaffVidsTask.getVidList();
+                //Log.d(TAG, "SIZE: " + list.size());
+            }
+
+            @Override
+            public void onError(Throwable e) {}
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete called");
+                //List<Video> list = getStaffVidsTask.getVidList();
+                //Log.d(TAG, "SIZE: " + list.size());
+            }
+
+        });*/
+
         // ---- Client Credentials Authenticate ----
         if (mApiClient.getVimeoAccount().getAccessToken() == null) {
+                // If there is no access token, fetch one
+                authenticateWithClientCredentials();
 
-                // If there is no access token, fetch one on a synchronized thread
-            Thread authThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    authenticateWithClientCredentials();
-                }
-            });
-            authThread.start();
+                //new GetVidsAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+                // ---- Subscribe to the networking tasks ----
+                getVideosObservable(getStaffVidsTask)
+                        //.subscribeOn(Schedulers.io())
+                        //.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<List<Video>> () {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+                            }
+
+                            @Override
+                            public void onNext(List<Video> value) {
+                                Log.d(TAG, "onNext called with value: " + value + "size: " + value.size());
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.d(TAG, "onError called:" + e);
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                Log.d(TAG, "onComplete called");
+                            }
+                        });
         }
-
-        Log.d(TAG, "Resuming main thread for onCreate");
 
         mListView = (ListView) findViewById(R.id.activity_main_listview);
         mAdapter = new VideoAdapter(this, R.id.list_item_video_name_textview, items);
@@ -81,9 +147,6 @@ public class MainActivity extends AppCompatActivity {
 
         String baseUri = "https://api.vimeo.com/channels/staffpicks/videos";
 
-        new StaffPicksAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-        //getVideoList("/staffpicks/videos");
     }
 
     private void configureVimeoAuthentication(){
@@ -93,8 +156,7 @@ public class MainActivity extends AppCompatActivity {
         VimeoClient.initialize(configBuilder.build());
     }
 
-    // You can't make any requests to the api without an access token. This will get you a basic
-    // "Client Credentials" grant which will allow you to make requests. This requires a client id and client secret.
+    /* After authorization is granted on success(), start GET request for videos*/
     private void authenticateWithClientCredentials() {
 
         VimeoClient.getInstance().authorizeWithClientCredentialsGrant(new AuthCallback() {
@@ -113,74 +175,93 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private List<List<Video>> getVidsTask(){
 
-    private class StaffPicksAsyncTask extends AsyncTask<Void, Void, ArrayList<JSONObject>> {
+        List<List<Video>> vidList = new ArrayList<List<Video>>();
+        int per_page = 5;
+
+        List<Video> staffVids = getStaffVidsTask.downloadVideos();
+        if (staffVids != null)
+            vidList.add(staffVids);
+
+        List<Video> premiereVids = getPremiereVidsTask.downloadVideos();
+        if (premiereVids != null)
+            vidList.add(premiereVids);
+
+        List<Video> bestMonthVids = getBestMonthVidsTask.downloadVideos();
+        if (bestMonthVids != null)
+            vidList.add(bestMonthVids);
+
+        List<Video> bestYearVids = getBestYearVidsTask.downloadVideos();
+        if (bestYearVids != null)
+            vidList.add(bestYearVids);
+
+        // return value here piped to onPostExecute
+        Log.d(TAG, "finished exeuction of async");
+        return vidList;
+    }
+
+        // this method won't execute until there's a subscriber
+    public Observable<List<Video>> getVideosObservable(GetVideosTask task){
+        final GetVideosTask t = task;
+        return Observable.defer(new Callable<ObservableSource<? extends List<Video>>>() {
+            @Override
+            public ObservableSource<? extends List<Video>> call() throws Exception {
+                return Observable.just(t.downloadVideos());
+            }
+        });
+    }
+
+
+    private class GetVidsAsyncTask extends AsyncTask<Void, Void, List<List<Video>> >{
 
         @Override
-        protected ArrayList<JSONObject> doInBackground(Void... params) {
+        protected List<List<Video>> doInBackground(Void... params) {
 
+            List<List<Video>> vidList = new ArrayList<List<Video>>();
             int per_page = 5;
 
-            GetVideosTask getStaffVidsTask = new GetVideosTask (per_page);
-            List<Video> staffVids = getStaffVidsTask.getVideos("/channels/staffpicks/videos");
+           /* GetVideosTask getStaffVidsTask = new GetVideosTask (per_page);
+            List<Video> staffVids = getStaffVidsTask.downloadVideos("/channels/staffpicks/videos");
+            if (staffVids != null)
+                vidList.add(staffVids);
 
             GetVideosTask getPremiereVidsTask = new GetVideosTask (per_page);
-            List<Video> premiereVids = getPremiereVidsTask.getVideos("/channels/premieres/videos");
+            List<Video> premiereVids = getPremiereVidsTask.downloadVideos("/channels/premieres/videos");
+            if (premiereVids != null)
+                vidList.add(premiereVids);
 
             GetVideosTask getBestMonthVidsTask = new GetVideosTask (per_page);
-            List<Video> bestMonthVids = getBestMonthVidsTask.getVideos("/channels/bestofthemonth/videos");
+            List<Video> bestMonthVids = getBestMonthVidsTask.downloadVideos("/channels/bestofthemonth/videos");
+            if (bestMonthVids != null)
+                vidList.add(bestMonthVids);
 
             GetVideosTask getBestYearVidsTask = new GetVideosTask (per_page);
-            List<Video> bestYearVids = getBestYearVidsTask.getVideos("/channels/bestoftheyear/videos");
+            List<Video> bestYearVids = getBestYearVidsTask.downloadVideos("/channels/bestoftheyear/videos");
+            if (bestYearVids != null)
+                vidList.add(bestYearVids);*/
 
-
-
-
-            //getVideoList("/staffpicks/videos");
-            //String url = "https://api.vimeo.com/channels/staffpicks/videos";
-
-            String url = "https://api.vimeo.com/channels/premieres/videos";
-
-            //working token
-            //String token = "bearer b529a655ff2fc32a8b58bf2b405f39b0";
-
-            String token = "bearer " + ACCESS_TOKEN;
-
-            ArrayList<JSONObject> videos = new ArrayList<>();
-
-            StringBuilder builder = new StringBuilder();
-            HttpClient client = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(url);
-            httpGet.addHeader("Authorization", token);
-            try {
-                HttpResponse response = client.execute(httpGet);
-                HttpEntity entity = response.getEntity();
-                InputStream content = entity.getContent();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(content));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
-                }
-                JSONObject object = new JSONObject(builder.toString());
-                JSONArray data = object.getJSONArray("data");
-                for (int i = 0; i < data.length(); i++) {
-                    videos.add(data.getJSONObject(i));
-                }
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return videos;
+                // return value here piped to onPostExecute
+            Log.d(TAG, "finished exeuction of async");
+            return vidList;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<JSONObject> result) {
-            items = result;
+        protected void onPostExecute(List<List<Video>> result) {
+
+            Log.d(TAG, "onPostExecute called. results size: " + result.size());
+            int i = 0;
+            for (List<Video> list : result){
+                Log.d(TAG, "\t list " + i + ":");
+                for (Video vid : list){
+                   Log.d(TAG, vid.name);
+                }
+            }
+
+            //items = result;
             mAdapter.addAll(items);
             mAdapter.notifyDataSetChanged();
         }
     }
+
 }

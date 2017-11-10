@@ -1,15 +1,14 @@
 package android.example.com.boguscode;
 
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.vimeo.networking.VimeoClient;
-import com.vimeo.networking.callbacks.ModelCallback;
 import com.vimeo.networking.model.Video;
-import com.vimeo.networking.model.VideoList;
-import com.vimeo.networking.model.error.VimeoError;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
 
 /**
  * Created by Steven on 11/7/2017.
@@ -21,8 +20,13 @@ public class GetVideosTask {
     private int page;
     private final int per_page;
     private int total = 0;
-    private List<Video> vidList = null;
+    private List<Video> vidList;
     private int max_page;
+    private String uri;
+        // observable to notify main thread data is ready
+    private Observable<String> observableTask;
+    AppCompatActivity activity;
+    OnTaskCompleted listener;
 
         // getters
     public int getPage() {return page;}
@@ -30,15 +34,37 @@ public class GetVideosTask {
         return per_page;
     }
     public List<Video> getVidList() { return vidList; }
+    public Observable<String> getObservableTask() { return this.observableTask; }
 
-    public GetVideosTask(int per_page){
+
+
+    public GetVideosTask(int per_page, String uri){
         this.page = 0;
         this.per_page = per_page;
+        this.observableTask =  Observable.just("Hello");
+        this.uri = uri;
     }
+
+    public GetVideosTask(int per_page, String uri, AppCompatActivity activity){
+        this.page = 0;
+        this.per_page = per_page;
+        this.observableTask =  Observable.just("Hello");
+        this.uri = uri;
+        this.activity = activity;
+    }
+
+    public GetVideosTask(int per_page, String uri, OnTaskCompleted listener){
+        this.page = 0;
+        this.per_page = per_page;
+        this.observableTask =  Observable.just("Hello");
+        this.uri = uri;
+        this.listener = listener;
+    }
+
     private final String TAG = getClass().getName();
 
         // if this function returns null, print at bottom of Video Reccycler List that there are no more videos to load.
-    public List<Video> getVideos(String uri){
+    public List<Video> downloadVideos(){
 
             // decide whether to proceed. If max_page reached, don't make any GET requests
         page++;
@@ -49,51 +75,60 @@ public class GetVideosTask {
         }
 
             // "/channels/<channel_name>/videos?page=1&per_page=15"
-        String refinedUri = new StringBuilder(uri)
+        String refinedUri = new StringBuilder(this.uri)
           .append("?page=").append(page).append("&per_page=").append(per_page).toString();
         Log.d(TAG, "url: " + refinedUri);
 
         if (VimeoClient.getInstance() == null)
             Log.e(TAG, "VIMEO CLIENT IS NULL");
 
-        VimeoClient.getInstance().fetchNetworkContent(refinedUri, new ModelCallback<VideoList>(VideoList.class) {
+        VimeoClient.getInstance().fetchNetworkContent(refinedUri, new CallBacks(this.listener));
+
+        /*VimeoClient.getInstance().fetchNetworkContent(refinedUri,
+
+                // ModelCallback all runs on Main thread
+                new ModelCallback<VideoList>(VideoList.class) {
 
             @Override
             public void success(VideoList videoList) {
                 if (videoList != null && videoList.data != null && !videoList.data.isEmpty()) {
 
-                        /* Pass total # of results (total should not change) on 1st success.
+                        *//* Pass total # of results (total should not change) on 1st success.
                            update the # page fetched. Page cannot surpass max page.
-                        */
+                        *//*
                     total = videoList.total;
 
                         // Create List of Vimeo Videos
                     List<Video> videos = new ArrayList<>();
                     Log.d(TAG, "GOT VIDEOS SUCCESS");
 
-                    int i = 1;
                     for(Video video : videoList.data) {
                         // Add Vimeo video to videos List
-                        Log.d(TAG, i+": " + video.name);
+                        //Log.d(TAG, i+": " + video.name);
                         videos.add(video);
-                        i++;
                     }
 
                     vidList = videos;
+                    observableTask =  Observable.just("Hello");
+                    Log.d(TAG, "id: " + Thread.currentThread().getId());
+                    MainActivity.getVideos(videos);
                 }
             }
 
             @Override
             public void failure(VimeoError error) {
-                Log.e(TAG, "getVideos error: " + error);
+                Log.e(TAG, "downloadVideos error: " + error);
             }
-        });
+
+        });*/
 
         /*for (Video vid : vidList){
             Log.d(TAG, vid.name);
         }*/
         return vidList;
     }
+
+
 
     public boolean totalNumberResultsInitialized(){
         return (total!=0);
