@@ -1,5 +1,6 @@
 package android.example.com.boguscode;
 
+import android.example.com.boguscode.models.GetVideosTask;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,12 +12,9 @@ import com.vimeo.networking.GsonDeserializer;
 import com.vimeo.networking.VimeoClient;
 import com.vimeo.networking.callbacks.AuthCallback;
 import com.vimeo.networking.model.Video;
-import com.vimeo.networking.model.VideoList;
 import com.vimeo.networking.model.error.VimeoError;
 
 import org.json.JSONObject;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +22,6 @@ import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -54,10 +46,22 @@ public class MainActivity extends AppCompatActivity{
     private VideoAdapter mAdapter;
     private ArrayList<JSONObject> items = new ArrayList<>();
 
+    private final String STAFF_VIDS = "Staff Vids";
+    private final String PREMIERE_VIDS = "Premiere Vids";
+    private final String MONTH_VIDS = "Month Vids";
+    private final String YEAR_VIDS = "Year Vids";
+
     GetVideosTask getStaffVidsTask;
     GetVideosTask getPremiereVidsTask;
     GetVideosTask getBestMonthVidsTask;
     GetVideosTask getBestYearVidsTask;
+
+    final List<Video> staffVids = new ArrayList<Video>();
+    final List<Video> premiereVids = new ArrayList<Video>();
+    final List<Video> bestMonthVids = new ArrayList<Video>();
+    final List<Video> bestYearVids = new ArrayList<Video>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,101 +72,67 @@ public class MainActivity extends AppCompatActivity{
         configureVimeoAuthentication();
         mApiClient = VimeoClient.getInstance();
 
-        getStaffVidsTask = new GetVideosTask(PER_PAGE, "/channels/staffpicks/videos", new OnTaskCompleted() {
+        // ---- After task finishes download, videos stored in staffVids List<Video> ----
+        OnTaskCompleted staffTaskDone = new OnTaskCompleted() {
             @Override
             public void onDownloadTaskCompleted(List<Video> videos) {
-                for (Video vid : videos){
-                    Log.d(TAG, vid.name);
-                }
+
+                if (vidsResponseError(videos, getStaffVidsTask.getName())) return;
+
+                for (Video vid : videos) { staffVids.add(vid); };
+
+                // the rest of the logic has to be done in here...
+
             }
-        });
+        };
 
-        getPremiereVidsTask = new GetVideosTask (PER_PAGE, "/channels/premieres/videos");
-        getBestMonthVidsTask = new GetVideosTask (PER_PAGE, "/channels/bestofthemonth/videos");
-        getBestYearVidsTask = new GetVideosTask (PER_PAGE, "/channels/bestoftheyear/videos");
-
-        //Log.d(TAG, "id: " + Thread.currentThread().getId());
-
-
-
-
-        /*getStaffVidsTask.getObservableTask().subscribe(new Observer<String>() {
+        OnTaskCompleted premiereTaskDone = new OnTaskCompleted() {
             @Override
-            public void onSubscribe(Disposable d) {}
+            public void onDownloadTaskCompleted(List<Video> videos) {
+                if (vidsResponseError(videos, getPremiereVidsTask.getName())) return;
 
-            @Override
-            public void onNext(String value) {
-                Log.d(TAG, "onNext called with value: " + value);
-                //List<Video> list = getStaffVidsTask.getVidList();
-                //Log.d(TAG, "SIZE: " + list.size());
+                for (Video vid : videos) { Log.d(TAG, vid.name); premiereVids.add(vid); };
+
             }
+        };
 
+        final OnTaskCompleted bestMonthTaskDone = new OnTaskCompleted() {
             @Override
-            public void onError(Throwable e) {}
+            public void onDownloadTaskCompleted(List<Video> videos) {
+                if (vidsResponseError(videos, getBestMonthVidsTask.getName())) return;
 
-            @Override
-            public void onComplete() {
-                Log.d(TAG, "onComplete called");
-                //List<Video> list = getStaffVidsTask.getVidList();
-                //Log.d(TAG, "SIZE: " + list.size());
+                for (Video vid : videos) { Log.d(TAG, vid.name); bestMonthVids.add(vid); };
             }
+        };
 
-        });*/
+        OnTaskCompleted bestYearTaskDone = new OnTaskCompleted() {
+            @Override
+            public void onDownloadTaskCompleted(List<Video> videos) {
+                if (vidsResponseError(videos, getBestYearVidsTask.getName())) return;
+
+                for (Video vid : videos) { Log.d(TAG, vid.name); bestYearVids.add(vid); };
+
+
+
+            }
+        };
+
+        getStaffVidsTask = new GetVideosTask(STAFF_VIDS, PER_PAGE, "/channels/staffpicks/videos", staffTaskDone);
+        getPremiereVidsTask = new GetVideosTask(PREMIERE_VIDS, PER_PAGE, "/channels/premieres/videos", premiereTaskDone);
+        getBestMonthVidsTask = new GetVideosTask (MONTH_VIDS, PER_PAGE, "/channels/bestofthemonth/videos", bestMonthTaskDone);
+        getBestYearVidsTask = new GetVideosTask (YEAR_VIDS, PER_PAGE, "/channels/bestoftheyear/videos", bestYearTaskDone);
+
 
         // ---- Client Credentials Authenticate ----
         if (mApiClient.getVimeoAccount().getAccessToken() == null) {
                 // If there is no access token, fetch one
                 authenticateWithClientCredentials();
+                getStaffVidsTask.downloadVideos();
+                getPremiereVidsTask.downloadVideos();
+                getBestMonthVidsTask.downloadVideos();
+                getBestYearVidsTask.downloadVideos();
 
                 //new GetVidsAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-                Log.d(TAG, "Started downloading videos");
-
-            getStaffVidsTask.getObservableTask().subscribe(new Observer<String>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                    }
-
-                    @Override
-                    public void onNext(String value) {
-                        Log.e(TAG, "onNext called: " + value);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, "onError called: " + e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.e(TAG, "onComplete called");
-                    }
-                });
-
-                // ---- Subscribe to the networking tasks ----
-                /*getVideosObservable(getStaffVidsTask)
-                        //.subscribeOn(Schedulers.io())
-                        //.observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Observer<List<Video>> () {
-                            @Override
-                            public void onSubscribe(Disposable d) {
-                            }
-
-                            @Override
-                            public void onNext(List<Video> value) {
-                                Log.d(TAG, "onNext called with value: " + value + "size: " + value.size());
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                Log.d(TAG, "onError called:" + e);
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                Log.d(TAG, "onComplete called");
-                            }
-                        });*/
         }
 
         mListView = (ListView) findViewById(R.id.activity_main_listview);
@@ -247,6 +217,19 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
+    public boolean vidsResponseError(List<Video> videos, String taskName){
+        if (videos.size() == 0) {
+            Log.e(TAG, "JSON response success, but List<Video> for is empty for task " + taskName);
+            return true;
+        }
+        else if (videos == null){
+            Log.e(TAG, "API call failed; no JSON response");
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
     private class GetVidsAsyncTask extends AsyncTask<Void, Void, List<List<Video>> >{
 

@@ -9,5 +9,5 @@ import java.util.List;
  */
 
 public interface OnTaskCompleted {
-    void onDownloadTaskCompleted(List<Video> list);
+    void onDownloadTaskCompleted(List<Video> videos);
 }

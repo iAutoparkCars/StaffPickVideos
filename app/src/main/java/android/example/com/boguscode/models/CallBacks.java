@@ -1,5 +1,6 @@
-package android.example.com.boguscode;
+package android.example.com.boguscode.models;
 
+import android.example.com.boguscode.OnTaskCompleted;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -23,7 +24,10 @@ public class CallBacks extends ModelCallback<VideoList> implements Callback<Vide
 
     private final String TAG = getClass().getName();
     private OnTaskCompleted listener;
+    private int total = 0;
 
+
+    public int getTotal() {return this.total; }
 
     @Override
     public void success(VideoList videoList) {
@@ -31,6 +35,8 @@ public class CallBacks extends ModelCallback<VideoList> implements Callback<Vide
 
             /* Pass total # of results (total should not change) on 1st success.
              update the # page fetched. Page cannot surpass max page.     */
+            if (!totalNumberResultsInitialized())
+                this.total = videoList.total;
 
             // Create List of Vimeo Videos
             List<Video> videos = new ArrayList<>();
@@ -42,18 +48,23 @@ public class CallBacks extends ModelCallback<VideoList> implements Callback<Vide
                 videos.add(video);
             }
 
-            //listener.onDownloadTaskCompleted(videos);
+            listener.onDownloadTaskCompleted(videos);
 
         }
     }
 
     @Override
     public void failure(VimeoError error) {
-
+        Log.e(TAG, "downloadVideos error: " + error);
+        listener.onDownloadTaskCompleted(null);
     }
 
     public CallBacks(OnTaskCompleted listener){
         super(VideoList.class);
         this.listener = listener;
+    }
+
+    public boolean totalNumberResultsInitialized(){
+        return (total!=0);
     }
 }
