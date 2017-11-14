@@ -1,11 +1,20 @@
 package android.example.com.boguscode;
 
+import android.content.Context;
 import android.example.com.boguscode.models.GetVideosTask;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.vimeo.networking.Configuration;
 import com.vimeo.networking.GsonDeserializer;
@@ -61,13 +70,26 @@ public class MainActivity extends AppCompatActivity{
     final List<Video> bestMonthVids = new ArrayList<Video>();
     final List<Video> bestYearVids = new ArrayList<Video>();
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+            // Get the ViewPager and set it's TabPagerAdapter so that it can display items
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        TabPagerAdapter pagerAdapter = new TabPagerAdapter(getSupportFragmentManager(), MainActivity.this);
+        viewPager.setAdapter(pagerAdapter);
+
+            // Set up the view_tab layout with my viewPager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
+
+            // for all tabs, set the Recycler List views
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            tab.setCustomView(pagerAdapter.getTabView(i));
+        }
 
         configureVimeoAuthentication();
         mApiClient = VimeoClient.getInstance();
@@ -112,8 +134,6 @@ public class MainActivity extends AppCompatActivity{
 
                 for (Video vid : videos) { Log.d(TAG, vid.name); bestYearVids.add(vid); };
 
-
-
             }
         };
 
@@ -126,22 +146,31 @@ public class MainActivity extends AppCompatActivity{
         // ---- Client Credentials Authenticate ----
         if (mApiClient.getVimeoAccount().getAccessToken() == null) {
                 // If there is no access token, fetch one
-                authenticateWithClientCredentials();
+
+                // comment this section out when testing to prevent mass generation of auth codes
+                /*authenticateWithClientCredentials();
                 getStaffVidsTask.downloadVideos();
                 getPremiereVidsTask.downloadVideos();
                 getBestMonthVidsTask.downloadVideos();
-                getBestYearVidsTask.downloadVideos();
+                getBestYearVidsTask.downloadVideos();*/
 
                 //new GetVidsAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
-        mListView = (ListView) findViewById(R.id.activity_main_listview);
+        /*mListView = (ListView) findViewById(R.id.activity_main_listview);
         mAdapter = new VideoAdapter(this, R.id.list_item_video_name_textview, items);
-        mListView.setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);*/
 
         String baseUri = "https://api.vimeo.com/channels/staffpicks/videos";
 
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+
 
     private void configureVimeoAuthentication(){
         Configuration.Builder configBuilder =
@@ -237,30 +266,6 @@ public class MainActivity extends AppCompatActivity{
         protected List<List<Video>> doInBackground(Void... params) {
 
             List<List<Video>> vidList = new ArrayList<List<Video>>();
-            int per_page = 5;
-
-           /* GetVideosTask getStaffVidsTask = new GetVideosTask (per_page);
-            List<Video> staffVids = getStaffVidsTask.downloadVideos("/channels/staffpicks/videos");
-            if (staffVids != null)
-                vidList.add(staffVids);
-
-            GetVideosTask getPremiereVidsTask = new GetVideosTask (per_page);
-            List<Video> premiereVids = getPremiereVidsTask.downloadVideos("/channels/premieres/videos");
-            if (premiereVids != null)
-                vidList.add(premiereVids);
-
-            GetVideosTask getBestMonthVidsTask = new GetVideosTask (per_page);
-            List<Video> bestMonthVids = getBestMonthVidsTask.downloadVideos("/channels/bestofthemonth/videos");
-            if (bestMonthVids != null)
-                vidList.add(bestMonthVids);
-
-            GetVideosTask getBestYearVidsTask = new GetVideosTask (per_page);
-            List<Video> bestYearVids = getBestYearVidsTask.downloadVideos("/channels/bestoftheyear/videos");
-            if (bestYearVids != null)
-                vidList.add(bestYearVids);*/
-
-                // return value here piped to onPostExecute
-            Log.d(TAG, "finished exeuction of async");
             return vidList;
         }
 
@@ -280,6 +285,54 @@ public class MainActivity extends AppCompatActivity{
             mAdapter.addAll(items);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    class TabPagerAdapter extends FragmentPagerAdapter {
+
+        String tabTitles[] = new String[] { "Recent", "Premieres", "Month", "Year" };
+        Context context;
+
+        public TabPagerAdapter(FragmentManager fm, Context context) {
+            super(fm);
+            this.context = context;
+        }
+
+        @Override
+        public int getCount() {
+            return tabTitles.length;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+
+                // specify which of the four lists (or Fragments) to get
+            switch (position) {
+                case 0:
+                    return new BlankFragment();
+                case 1:
+                    return new BlankFragment();
+                case 2:
+                    return new BlankFragment();
+                case 3:
+                    return new BlankFragment();
+            }
+
+            return null;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            // Generate title based on item position
+            return tabTitles[position];
+        }
+
+        public View getTabView(int position) {
+            View tab = LayoutInflater.from(MainActivity.this).inflate(R.layout.view_tab, null);
+            TextView tv = (TextView) tab.findViewById(R.id.tab_title);
+            tv.setText(tabTitles[position]);
+            return tab;
+        }
+
     }
 
 }
