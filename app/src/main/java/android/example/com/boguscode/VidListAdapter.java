@@ -4,6 +4,7 @@ package android.example.com.boguscode;
  * Created by Steven on 11/12/2017.
  */
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.example.com.boguscode.databinding.ViewVideoCardBinding;
 import android.example.com.boguscode.models.VideoItem;
@@ -13,6 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import  android.example.com.boguscode.ViewHolder;
 
@@ -20,6 +23,8 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
     private String[] mDataset;
     ViewVideoCardBinding cardBinding;
     private LayoutInflater inflater;
+    private int lastPosition = -1;
+    private Context context;
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public VidListAdapter(String[] myDataset) {
@@ -37,7 +42,8 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
         //ViewHolder vh = new ViewHolder(v);
 
         if (inflater == null) {
-            inflater = LayoutInflater.from(parent.getContext());
+            context = parent.getContext();
+            inflater = LayoutInflater.from(context);
         }
         ViewVideoCardBinding viewBinding = DataBindingUtil.inflate(inflater, R.layout.view_video_card, parent,false);
 
@@ -50,6 +56,11 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
         String textData = mDataset[position];
         VideoItem vidItem = new VideoItem(textData, textData);
 
+        Animation animation = AnimationUtils.loadAnimation(context,
+                (position > lastPosition) ? R.anim.slide_down : R.anim.slide_up);
+        lastPosition = position;
+
+        holder.setAnimation(animation);
         holder.bind(vidItem);
 
         /*holder.mTextView.setText(mDataset[position]);

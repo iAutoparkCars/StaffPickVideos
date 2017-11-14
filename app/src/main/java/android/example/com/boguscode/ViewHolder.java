@@ -5,6 +5,7 @@ import android.example.com.boguscode.models.VideoItem;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.TextView;
 
 
@@ -13,11 +14,15 @@ public class ViewHolder extends RecyclerView.ViewHolder {
     private ViewVideoCardBinding cardBinding;
     public int containerId = 0;
     public CardView cardView;
+    private Animation animation;
 
     public ViewHolder(ViewVideoCardBinding dataBinding, View v) {
         super(dataBinding.getRoot());
         this.cardBinding = dataBinding;
+    }
 
+    public void setAnimation(Animation animation){
+        this.animation = animation;
     }
 
     // Provide a reference to the views for each data item
@@ -41,7 +46,9 @@ public class ViewHolder extends RecyclerView.ViewHolder {
             binding is able to somehow setTrack to set the variable named "track"
         */
 
+
         //this.binding.setTrack(model);
+        itemView.startAnimation(animation);
         this.cardBinding.setVideoItem(model);
 
         //this.binding.setHandler(new FavImgClickHandler());
