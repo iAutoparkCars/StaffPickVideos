@@ -20,6 +20,7 @@ import com.vimeo.networking.Configuration;
 import com.vimeo.networking.GsonDeserializer;
 import com.vimeo.networking.VimeoClient;
 import com.vimeo.networking.callbacks.AuthCallback;
+import com.vimeo.networking.model.Picture;
 import com.vimeo.networking.model.Video;
 import com.vimeo.networking.model.error.VimeoError;
 
@@ -69,6 +70,11 @@ public class MainActivity extends AppCompatActivity{
     final List<Video> premiereVids = new ArrayList<Video>();
     final List<Video> bestMonthVids = new ArrayList<Video>();
     final List<Video> bestYearVids = new ArrayList<Video>();
+
+    BlankFragment recentFragment;
+    BlankFragment premiereFragment;
+    BlankFragment monthFragment;
+    BlankFragment yearFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,8 +138,16 @@ public class MainActivity extends AppCompatActivity{
             public void onDownloadTaskCompleted(List<Video> videos) {
                 if (vidsResponseError(videos, getBestYearVidsTask.getName())) return;
 
-                for (Video vid : videos) { Log.d(TAG, vid.name); bestYearVids.add(vid); };
+                Video video = videos.get(0);
+                Log.d(TAG, printVidInfo(video));
+                for (Picture pic : video.pictures.sizes){
+                    Log.d(TAG, "url: " + pic.link);
+                }
 
+                /*for (Video vid : videos) {
+                    Log.d(TAG, printVidInfo(vid));
+                    bestYearVids.add(vid);
+                };*/
             }
         };
 
@@ -148,11 +162,11 @@ public class MainActivity extends AppCompatActivity{
                 // If there is no access token, fetch one
 
                 // comment this section out when testing to prevent mass generation of auth codes
-                /*authenticateWithClientCredentials();
-                getStaffVidsTask.downloadVideos();
-                getPremiereVidsTask.downloadVideos();
-                getBestMonthVidsTask.downloadVideos();
-                getBestYearVidsTask.downloadVideos();*/
+                authenticateWithClientCredentials();
+                //getStaffVidsTask.downloadVideos();
+                //getPremiereVidsTask.downloadVideos();
+                //getBestMonthVidsTask.downloadVideos();
+                getBestYearVidsTask.downloadVideos();
 
                 //new GetVidsAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -308,13 +322,21 @@ public class MainActivity extends AppCompatActivity{
                 // specify which of the four lists (or Fragments) to get
             switch (position) {
                 case 0:
-                    return new BlankFragment();
+                    if (recentFragment == null)
+                        recentFragment = new BlankFragment();
+                    return recentFragment;
                 case 1:
-                    return new BlankFragment();
+                    if (premiereFragment == null)
+                        premiereFragment = new BlankFragment();
+                    return premiereFragment;
                 case 2:
-                    return new BlankFragment();
+                    if (monthFragment == null)
+                        monthFragment = new BlankFragment();
+                    return monthFragment;
                 case 3:
-                    return new BlankFragment();
+                    if (yearFragment == null)
+                        yearFragment = new BlankFragment();
+                    return yearFragment;
             }
 
             return null;
@@ -335,4 +357,9 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    public String printVidInfo(Video vid){
+        int size = vid.pictures.sizes.size();
+        return "title: " + vid.name + "\n vid url: " + vid.link + "\n; user/name: " + vid.user.name + "; user/getName: " + vid.user.getName()
+                + "\n; pic_urls: " + "size: " + size +" " +vid.pictures.sizes.get(1).link + "; duration: " + vid.duration + "; play#: " + vid.stats.plays;
+    }
 }

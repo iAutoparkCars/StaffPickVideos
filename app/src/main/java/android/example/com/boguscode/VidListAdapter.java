@@ -19,18 +19,22 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import  android.example.com.boguscode.ViewHolder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
-    private String[] mDataset;
+    private List<String> mDataset;
     ViewVideoCardBinding cardBinding;
     private LayoutInflater inflater;
     private int lastPosition = -1;
     private Context context;
 
-    // Provide a suitable constructor (depends on the kind of dataset)
-    public VidListAdapter(String[] myDataset) {
+    public VidListAdapter(List<String> myDataset) {
         mDataset = myDataset;
         //cardBinding = Da
     }
+
+    public VidListAdapter(){}
 
     // Create new views (invoked by the layout manager)
     @Override
@@ -53,7 +57,7 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
-        String textData = mDataset[position];
+        String textData = mDataset.get(position);
         VideoItem vidItem = new VideoItem(textData, textData);
 
         Animation animation = AnimationUtils.loadAnimation(context,
@@ -75,6 +79,17 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mDataset.length;
+        return mDataset.size();
     }
+
+    public void addItems(List<String> list){
+
+        if (mDataset == null)
+            mDataset = new ArrayList<String>();
+
+        for (String obj : list){
+            mDataset.add(obj);
+        }
+    }
+
 }

@@ -45,4 +45,7 @@ public class VideoItem extends Video {
         return this.video.playCount();
     }
 
+    public String getVidUrl(){
+        return this.video.link;
+    }
 }

@@ -19,6 +19,7 @@
     android:layout_height="210dp"
     card_view:cardCornerRadius="0dp"
     card_view:elevation="14dp"
+    android:clickable="true"
    >
 
     <android.support.constraint.ConstraintLayout
@@ -105,7 +106,7 @@
             card_view:layout_constraintTop_toTopOf="@+id/textBackground"
             android:layout_marginTop="7dp" />
 
-        <TextView
+        <!--<TextView
             android:id="@+id/viewCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -117,7 +118,7 @@
             card_view:layout_constraintTop_toBottomOf="@+id/duration"
             android:layout_marginStart="226dp"
             android:layout_marginEnd="8dp"
-            card_view:layout_constraintLeft_toLeftOf="@+id/duration" />
+            card_view:layout_constraintLeft_toLeftOf="@+id/duration" />-->
 
 
     </android.support.constraint.ConstraintLayout>
