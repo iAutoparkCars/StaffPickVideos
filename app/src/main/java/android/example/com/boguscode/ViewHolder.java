@@ -4,6 +4,7 @@ import android.example.com.boguscode.databinding.ViewVideoCardBinding;
 import android.example.com.boguscode.models.VideoItem;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.TextView;
@@ -11,10 +12,11 @@ import android.widget.TextView;
 
 public class ViewHolder extends RecyclerView.ViewHolder {
 
+    private String TAG = getClass().getName();
     private ViewVideoCardBinding cardBinding;
     public int containerId = 0;
     public CardView cardView;
-    private Animation animation;
+    private Animation animation = null;
 
     public ViewHolder(ViewVideoCardBinding dataBinding, View v) {
         super(dataBinding.getRoot());
@@ -48,7 +50,13 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 
 
         //this.binding.setTrack(model);
-        itemView.startAnimation(animation);
+
+        if (animation != null){
+            //Log.e(TAG, "Animation started.");
+            //itemView.startAnimation(animation);
+            getBinding().cardView.startAnimation(animation);
+        }
+
         this.cardBinding.setVideoItem(model);
 
         //this.binding.setHandler(new FavImgClickHandler());

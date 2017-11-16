@@ -19,32 +19,35 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import  android.example.com.boguscode.ViewHolder;
 
+import com.vimeo.networking.model.Video;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
-    private List<String> mDataset;
+
+    private String TAG = getClass().getName();
+    private List<VideoItem> mDataset;
     ViewVideoCardBinding cardBinding;
     private LayoutInflater inflater;
-    private int lastPosition = -1;
+    public int lastPosition = -1;
     private Context context;
+    public String name;
 
-    public VidListAdapter(List<String> myDataset) {
-        mDataset = myDataset;
-        //cardBinding = Da
+    public VidListAdapter(List<VideoItem> myDataset) {
+
     }
 
-    public VidListAdapter(){}
+    public VidListAdapter(){
+        mDataset = new LinkedList<VideoItem>();
+        //setHasStableIds(true);
+    }
 
     // Create new views (invoked by the layout manager)
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // create a new view
-        //View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item, parent, false);
-
-        // set the view's size, margins, paddings and layout parameters
-        //ViewHolder vh = new ViewHolder(v);
-
+            // inflate a new view
         if (inflater == null) {
             context = parent.getContext();
             inflater = LayoutInflater.from(context);
@@ -52,19 +55,22 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
         ViewVideoCardBinding viewBinding = DataBindingUtil.inflate(inflater, R.layout.view_video_card, parent,false);
 
         return new ViewHolder(viewBinding, parent);
+
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+        //Log.d(TAG, "onBind lastPos: " + lastPosition);
 
-        String textData = mDataset.get(position);
-        VideoItem vidItem = new VideoItem(textData, textData);
+        VideoItem vidItem = mDataset.get(position);
 
-        Animation animation = AnimationUtils.loadAnimation(context,
-                (position > lastPosition) ? R.anim.slide_down : R.anim.slide_up);
+        if (lastPosition != -5) {
+            Animation animation;
+            animation = AnimationUtils.loadAnimation(context,
+                    (position < lastPosition) ? R.anim.slide_down : R.anim.slide_up);
+            holder.setAnimation(animation);
+        }
         lastPosition = position;
-
-        holder.setAnimation(animation);
         holder.bind(vidItem);
 
         /*holder.mTextView.setText(mDataset[position]);
@@ -82,7 +88,29 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
         return mDataset.size();
     }
 
-    public void addItems(List<String> list){
+    // -- Override getItemId, getItemViewType to prevent repeated cards on scroll --
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    public void addItems(List<VideoItem> list){
+
+        if (mDataset == null)
+            mDataset = new LinkedList<>();
+
+        for (VideoItem item : list){
+            mDataset.add(item);
+        }
+    }
+
+
+    /*public void addItems(List<String> list){
 
         if (mDataset == null)
             mDataset = new ArrayList<String>();
@@ -90,6 +118,30 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
         for (String obj : list){
             mDataset.add(obj);
         }
+    }*/
+
+    /*public void addItems(List<String> list){
+
+        if (mDataset == null)
+            mDataset = new ArrayList<VideoItem>();
+
+        int numInserted = list.size();
+        int oldLastPos = mDataset.size()-1;
+
+        for (VideoItem vid : list){
+            mDataset.add(vid);
+        }
+
+        notifyItemRangeInserted(oldLastPos + 1, numInserted);
+    }*/
+
+    public void addItem(VideoItem vid){
+
+        mDataset.add(vid);
+        //this.notifyDataSetChanged();
+
+        //Log.d(TAG, "MainActivity tried to add item to list");
+
     }
 
 }

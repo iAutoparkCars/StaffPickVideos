@@ -15,7 +15,7 @@ import io.reactivex.Observable;
  * Created by Steven on 11/7/2017.
  */
 
-public class GetVideosTask {
+public class DownloadVidsTask {
 
         // page first calls 1, then increments as user requests more pages
     private int page;
@@ -42,13 +42,13 @@ public class GetVideosTask {
     public CallBacks getCallback() {return this.callbacks; }
     public String getName() {return this.name; }
 
-    public GetVideosTask(int per_page, String uri){
+    public DownloadVidsTask(int per_page, String uri){
         this.page = 0;
         this.per_page = per_page;
         this.uri = uri;
     }
 
-    public GetVideosTask(String name, int per_page, String uri, OnTaskCompleted listener){
+    public DownloadVidsTask(String name, int per_page, String uri, OnTaskCompleted listener){
         this.name = name;
         this.page = 0;
         this.per_page = per_page;

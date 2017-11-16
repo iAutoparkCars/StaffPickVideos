@@ -1,5 +1,7 @@
 package android.example.com.boguscode.models;
 
+import android.util.Log;
+
 import com.vimeo.networking.model.Video;
 
 /**
@@ -10,6 +12,7 @@ public class VideoItem extends Video {
 
     private Video video;
     public Video getVideo() { return this.video; }
+    public String thumbnailUrl;
 
     public VideoItem(Video video){
         this.video = video;
@@ -38,7 +41,13 @@ public class VideoItem extends Video {
     }
 
     public String getThumbnailUrl(){
-        return this.video.pictures.sizes.get(0).link;
+
+        if (video == null){
+            Log.e("VideoItem", "video is null");
+            return "placeholder";
+        }else{
+            return video.pictures.sizes.get(3).link;
+        }
     }
 
     public Integer getPlayCount(){

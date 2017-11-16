@@ -1,7 +1,7 @@
 package android.example.com.boguscode;
 
 import android.content.Context;
-import android.example.com.boguscode.models.GetVideosTask;
+import android.example.com.boguscode.models.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -61,10 +61,10 @@ public class MainActivity extends AppCompatActivity{
     private final String MONTH_VIDS = "Month Vids";
     private final String YEAR_VIDS = "Year Vids";
 
-    GetVideosTask getStaffVidsTask;
-    GetVideosTask getPremiereVidsTask;
-    GetVideosTask getBestMonthVidsTask;
-    GetVideosTask getBestYearVidsTask;
+    DownloadVidsTask getStaffVidsTask;
+    DownloadVidsTask getPremiereVidsTask;
+    DownloadVidsTask getBestMonthVidsTask;
+    DownloadVidsTask getBestYearVidsTask;
 
     final List<Video> staffVids = new ArrayList<Video>();
     final List<Video> premiereVids = new ArrayList<Video>();
@@ -76,73 +76,101 @@ public class MainActivity extends AppCompatActivity{
     BlankFragment monthFragment;
     BlankFragment yearFragment;
 
+    boolean staffTaskDone = false;
+    boolean premiereTaskDone = false;
+    boolean monthTaskDone = false;
+    boolean yearTaskDone = false;
+
+    TabLayout tabLayout;
+    TabPagerAdapter pagerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+            // instantiate fragments for each list
+        recentFragment = new BlankFragment();
+        premiereFragment = new BlankFragment();
+        monthFragment = new BlankFragment();
+        yearFragment = new BlankFragment();
+
             // Get the ViewPager and set it's TabPagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        TabPagerAdapter pagerAdapter = new TabPagerAdapter(getSupportFragmentManager(), MainActivity.this);
+        pagerAdapter = new TabPagerAdapter(getSupportFragmentManager(), MainActivity.this);
         viewPager.setAdapter(pagerAdapter);
 
             // Set up the view_tab layout with my viewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
-            // for all tabs, set the Recycler List views
+            // set the layouts for each list
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             TabLayout.Tab tab = tabLayout.getTabAt(i);
             tab.setCustomView(pagerAdapter.getTabView(i));
         }
 
+            // authenticate this app to make API calls
         configureVimeoAuthentication();
         mApiClient = VimeoClient.getInstance();
 
-        // ---- After task finishes download, videos stored in staffVids List<Video> ----
-        OnTaskCompleted staffTaskDone = new OnTaskCompleted() {
+        // ---- After task finishes download, load results into its proper list ----
+        final OnTaskCompleted staffDone = new OnTaskCompleted() {
             @Override
             public void onDownloadTaskCompleted(List<Video> videos) {
+                staffTaskDone = true;
 
                 if (vidsResponseError(videos, getStaffVidsTask.getName())) return;
-
-                for (Video vid : videos) { staffVids.add(vid); };
-
-                // the rest of the logic has to be done in here...
-
+                getFragment(recentFragment, STAFF_VIDS).addItems(videos);
             }
         };
 
-        OnTaskCompleted premiereTaskDone = new OnTaskCompleted() {
+        final OnTaskCompleted premiereDone = new OnTaskCompleted() {
             @Override
             public void onDownloadTaskCompleted(List<Video> videos) {
+                premiereTaskDone = true;
+                //loadViews();
+
                 if (vidsResponseError(videos, getPremiereVidsTask.getName())) return;
 
-                for (Video vid : videos) { Log.d(TAG, vid.name); premiereVids.add(vid); };
 
+                // here it is saying adapter is null??
+                getFragment(premiereFragment, PREMIERE_VIDS).addItems(videos);
             }
         };
 
-        final OnTaskCompleted bestMonthTaskDone = new OnTaskCompleted() {
+        final OnTaskCompleted bestMonthDone = new OnTaskCompleted() {
             @Override
             public void onDownloadTaskCompleted(List<Video> videos) {
+                monthTaskDone = true;
+                //loadViews();
+
                 if (vidsResponseError(videos, getBestMonthVidsTask.getName())) return;
 
-                for (Video vid : videos) { Log.d(TAG, vid.name); bestMonthVids.add(vid); };
+                if (monthFragment == null)
+                    Log.d(TAG, "month fragment is null");
+
+
+                getFragment(monthFragment, MONTH_VIDS).addItems(videos);
             }
         };
 
-        OnTaskCompleted bestYearTaskDone = new OnTaskCompleted() {
+        OnTaskCompleted bestYearDone = new OnTaskCompleted() {
             @Override
             public void onDownloadTaskCompleted(List<Video> videos) {
+                yearTaskDone = true;
+                //loadViews();
+
                 if (vidsResponseError(videos, getBestYearVidsTask.getName())) return;
 
-                Video video = videos.get(0);
+                getFragment(yearFragment, YEAR_VIDS).addItems(videos);
+
+                /*Video video = videos.get(0);
                 Log.d(TAG, printVidInfo(video));
                 for (Picture pic : video.pictures.sizes){
                     Log.d(TAG, "url: " + pic.link);
-                }
+                }*/
 
                 /*for (Video vid : videos) {
                     Log.d(TAG, printVidInfo(vid));
@@ -151,10 +179,10 @@ public class MainActivity extends AppCompatActivity{
             }
         };
 
-        getStaffVidsTask = new GetVideosTask(STAFF_VIDS, PER_PAGE, "/channels/staffpicks/videos", staffTaskDone);
-        getPremiereVidsTask = new GetVideosTask(PREMIERE_VIDS, PER_PAGE, "/channels/premieres/videos", premiereTaskDone);
-        getBestMonthVidsTask = new GetVideosTask (MONTH_VIDS, PER_PAGE, "/channels/bestofthemonth/videos", bestMonthTaskDone);
-        getBestYearVidsTask = new GetVideosTask (YEAR_VIDS, PER_PAGE, "/channels/bestoftheyear/videos", bestYearTaskDone);
+        getStaffVidsTask = new DownloadVidsTask(STAFF_VIDS, PER_PAGE, "/channels/staffpicks/videos", staffDone);
+        getPremiereVidsTask = new DownloadVidsTask(PREMIERE_VIDS, PER_PAGE, "/channels/premieres/videos", premiereDone);
+        getBestMonthVidsTask = new DownloadVidsTask(MONTH_VIDS, PER_PAGE, "/channels/bestofthemonth/videos", bestMonthDone);
+        getBestYearVidsTask = new DownloadVidsTask(YEAR_VIDS, PER_PAGE, "/channels/bestoftheyear/videos", bestYearDone);
 
 
         // ---- Client Credentials Authenticate ----
@@ -163,9 +191,9 @@ public class MainActivity extends AppCompatActivity{
 
                 // comment this section out when testing to prevent mass generation of auth codes
                 authenticateWithClientCredentials();
-                //getStaffVidsTask.downloadVideos();
-                //getPremiereVidsTask.downloadVideos();
-                //getBestMonthVidsTask.downloadVideos();
+                getStaffVidsTask.downloadVideos();
+                getPremiereVidsTask.downloadVideos();
+                getBestMonthVidsTask.downloadVideos();
                 getBestYearVidsTask.downloadVideos();
 
                 //new GetVidsAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -179,12 +207,23 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    public void loadViews(){
+        if (staffTaskDone && premiereTaskDone && monthTaskDone && yearTaskDone){
+            // for all tabs, set the Recycler List views
+            for (int i = 0; i < tabLayout.getTabCount(); i++) {
+                TabLayout.Tab tab = tabLayout.getTabAt(i);
+                tab.setCustomView(pagerAdapter.getTabView(i));
+            }
+        }else{
+            Log.d(TAG, "one task returned, but not all");
+        }
+
+    }
+
     @Override
     public void onResume() {
         super.onResume();
     }
-
-
 
     private void configureVimeoAuthentication(){
         Configuration.Builder configBuilder =
@@ -239,19 +278,10 @@ public class MainActivity extends AppCompatActivity{
     }
 
         /*this method won't execute until there's a subscriber
-
-
-          it's likely this method has to be called in the success method inCallBacks class
-          the (model) CallBacks class
-
-          the getVideosObservable method will not run anything until there is a subscriber,
-          so I do subscribe in the on success??
-
-          I just know that in the success() function I have to call Observable.just
         */
 
-    public Observable<List<Video>> getVideosObservable(GetVideosTask task){
-        final GetVideosTask t = task;
+    public Observable<List<Video>> getVideosObservable(DownloadVidsTask task){
+        final DownloadVidsTask t = task;
         return Observable.defer(new Callable<ObservableSource<? extends List<Video>>>() {
             @Override
             public ObservableSource<? extends List<Video>> call() throws Exception {
@@ -322,29 +352,20 @@ public class MainActivity extends AppCompatActivity{
                 // specify which of the four lists (or Fragments) to get
             switch (position) {
                 case 0:
-                    if (recentFragment == null)
-                        recentFragment = new BlankFragment();
                     return recentFragment;
                 case 1:
-                    if (premiereFragment == null)
-                        premiereFragment = new BlankFragment();
                     return premiereFragment;
                 case 2:
-                    if (monthFragment == null)
-                        monthFragment = new BlankFragment();
                     return monthFragment;
                 case 3:
-                    if (yearFragment == null)
-                        yearFragment = new BlankFragment();
                     return yearFragment;
             }
-
             return null;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            // Generate title based on item position
+                // make title based on item position
             return tabTitles[position];
         }
 
@@ -354,12 +375,20 @@ public class MainActivity extends AppCompatActivity{
             tv.setText(tabTitles[position]);
             return tab;
         }
-
     }
 
+        // function used for debugging
     public String printVidInfo(Video vid){
         int size = vid.pictures.sizes.size();
         return "title: " + vid.name + "\n vid url: " + vid.link + "\n; user/name: " + vid.user.name + "; user/getName: " + vid.user.getName()
                 + "\n; pic_urls: " + "size: " + size +" " +vid.pictures.sizes.get(1).link + "; duration: " + vid.duration + "; play#: " + vid.stats.plays;
+    }
+
+    public BlankFragment getFragment(BlankFragment fragment, String name){
+        if (fragment == null){
+            fragment = new BlankFragment();
+            fragment.setName(name);
+        }
+        return fragment;
     }
 }

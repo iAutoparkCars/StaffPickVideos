@@ -1,6 +1,7 @@
 package android.example.com.boguscode;
 
 import android.content.Context;
+import android.example.com.boguscode.models.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -52,7 +53,7 @@ public class VideoAdapter extends ArrayAdapter<JSONObject> {
             e.printStackTrace();
         }
         if (uri != null) {
-            new DownloadImageTask(imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri);
+            new DownloadImgTask(imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri);
         }
         nameTextView.setText(video.optString("name", ""));
 
@@ -66,30 +67,5 @@ public class VideoAdapter extends ArrayAdapter<JSONObject> {
         return convertView;
     }
 
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
-        ImageView bmImage;
-
-        public DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap bitmap = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                bitmap = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return bitmap;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            if (result != null) {
-                bmImage.setImageBitmap(result);
-            }
-        }
-    }
 }
