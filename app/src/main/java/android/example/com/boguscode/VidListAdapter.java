@@ -5,6 +5,7 @@ package android.example.com.boguscode;
  */
 
 import android.content.Context;
+import android.databinding.DataBindingComponent;
 import android.databinding.DataBindingUtil;
 import android.example.com.boguscode.databinding.ViewVideoCardBinding;
 import android.example.com.boguscode.models.VideoItem;
@@ -52,7 +53,10 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
             context = parent.getContext();
             inflater = LayoutInflater.from(context);
         }
+
         ViewVideoCardBinding viewBinding = DataBindingUtil.inflate(inflater, R.layout.view_video_card, parent,false);
+
+        // pass viewBinding into
 
         return new ViewHolder(viewBinding, parent);
 
@@ -61,6 +65,12 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         //Log.d(TAG, "onBind lastPos: " + lastPosition);
+
+        ViewVideoCardBinding binding = holder.cardBinding;
+
+
+        //binding.setAvm(new ArticleViewModel(mArticles.get(position), mContext));
+
 
         VideoItem vidItem = mDataset.get(position);
 
@@ -71,7 +81,7 @@ public class VidListAdapter extends RecyclerView.Adapter<ViewHolder> {
             holder.setAnimation(animation);
         }
         lastPosition = position;
-        holder.bind(vidItem);
+        holder.bind(vidItem, this.context);
 
         /*holder.mTextView.setText(mDataset[position]);
         holder.mCardView.setOnClickListener(new View.OnClickListener() {

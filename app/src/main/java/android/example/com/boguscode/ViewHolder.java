@@ -1,5 +1,6 @@
 package android.example.com.boguscode;
 
+import android.content.Context;
 import android.example.com.boguscode.databinding.ViewVideoCardBinding;
 import android.example.com.boguscode.models.VideoItem;
 import android.support.v7.widget.CardView;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 public class ViewHolder extends RecyclerView.ViewHolder {
 
     private String TAG = getClass().getName();
-    private ViewVideoCardBinding cardBinding;
+    public ViewVideoCardBinding cardBinding;
     public int containerId = 0;
     public CardView cardView;
     private Animation animation = null;
@@ -40,7 +41,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         }
     }*/
 
-    public void bind (VideoItem model)
+    public void bind (VideoItem model, Context context)
     {
         /*
             bind method is very strange.
@@ -57,10 +58,13 @@ public class ViewHolder extends RecyclerView.ViewHolder {
             getBinding().cardView.startAnimation(animation);
         }
 
+
         this.cardBinding.setVideoItem(model);
 
-        //this.binding.setHandler(new FavImgClickHandler());
+            // call this to bind the ViewModel to this item in RecView (the ViewHolder)
+        this.cardBinding.setItemViewModel(new ListItemViewModel(model, context));
 
+        //this.binding.setHandler(new FavImgClickHandler());
         //this.binding.executePendingBindings();
     }
 
