@@ -24,7 +24,8 @@
     card_view:cardCornerRadius="0dp"
     card_view:elevation="14dp"
     android:clickable="true"
-    android:onClick="@{itemViewModel.onOpenUrlWithBrowser()}"
+
+    android:onClick="@{itemViewModel.onOpenUrlWithBrowser(videoItem.vidUrl)}"
    >
 
     <android.support.constraint.ConstraintLayout
