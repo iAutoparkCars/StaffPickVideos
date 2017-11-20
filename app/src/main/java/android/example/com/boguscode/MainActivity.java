@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
             // instantiate fragments for each list
         recentFragment = new BlankFragment();
         premiereFragment = new BlankFragment();
@@ -240,6 +239,12 @@ public class MainActivity extends AppCompatActivity{
     public void onResume() {
 
         super.onResume();
+        checkNetworkState();
+
+    }
+
+    private void checkNetworkState() {
+        // observing network is more refined. Tells you if connected to MOBILE or INTERNET
         networkDisposable = ReactiveNetwork.observeNetworkConnectivity(getApplicationContext())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -248,23 +253,24 @@ public class MainActivity extends AppCompatActivity{
                     public void accept(Connectivity connectivity) throws Exception {
                         Log.d(TAG, connectivity.toString());
                         final NetworkInfo.State state = connectivity.getState();
+
+                        if (state == NetworkInfo.State.DISCONNECTED || state == NetworkInfo.State.DISCONNECTING){
+                            // some message to show user there is no network connection
+                            Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.networkDisconnected), Toast.LENGTH_LONG);
+                        }
+
+                        if (state == NetworkInfo.State.CONNECTED){
+                            MainActivity.this.isConnected = true;
+                            Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.networkConnected), Toast.LENGTH_LONG);
+                            Log.d(TAG, "There is now network connection.");
+                        }
+
                         final String name = connectivity.getTypeName();
-
-
                         Log.d(TAG, String.format("state: %s, typeName: %s", state, name));
                     }
                 });
 
-                /*.subscribe(connectivity -> {
-                    Log.d(TAG, connectivity.toString());
-                    final NetworkInfo.State state = connectivity.getState();
-                    final String name = connectivity.getTypeName();
-
-                    Log.d(TAG, "Connection status: " + name);
-
-                    tvConnectivityStatus.setText(String.format("state: %s, typeName: %s", state, name));
-                });*/
-
+        // observing internet tells me if I have any connection or not
         internetDisposable = ReactiveNetwork.observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -272,14 +278,9 @@ public class MainActivity extends AppCompatActivity{
                     @Override
                     public void accept(Boolean isConnected) throws Exception {
                         Log.d(TAG, "is Connected? " + isConnected);
-
-                        MainActivity.this.isConnected = isConnected;
-
+                        //MainActivity.this.isConnected = isConnected;
                     }
                 });
-                //.subscribe(isConnected -> tvInternetStatus.setText(isConnected.toString()));
-
-
     }
 
     @Override protected void onPause() {
@@ -287,6 +288,7 @@ public class MainActivity extends AppCompatActivity{
         safelyDispose(networkDisposable, internetDisposable);
     }
 
+        // free up resources by disposing
     private void safelyDispose(Disposable... disposables) {
         for (Disposable subscription : disposables) {
             if (subscription != null && !subscription.isDisposed()) {

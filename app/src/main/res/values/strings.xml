@@ -2,4 +2,9 @@
     <string name="app_name">BogusCode</string>
     <string name="activity_main_title">Vimeo Staf Pics</string>
 
+    <string name="networkDisconnected">Network disconnected!</string>
+    <string name="networkConnected">Network re-connected.</string>
+
+
+
 </resources>

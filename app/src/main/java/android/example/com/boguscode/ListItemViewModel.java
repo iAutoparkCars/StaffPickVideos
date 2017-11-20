@@ -20,6 +20,7 @@ import java.net.URL;
 
 public class ListItemViewModel {
 
+    final String TAG = "listItemViewModel";
     private VideoItem vidItem;
     private Context mContext;
 
@@ -27,6 +28,7 @@ public class ListItemViewModel {
         this.vidItem = vidItem;
         this.mContext = context;
     }
+
     /*  Open URL with browser.
     * @param videoItem.vidUrl.
     *        Notice that this Url is passed in using databinding View 'data' objects
@@ -34,35 +36,36 @@ public class ListItemViewModel {
     * @return returns my definition of a Listener
     */
     public View.OnClickListener onOpenUrlWithBrowser(String link) {
-
-            // before proceeding, need to check Network state here!
-
-
         final String uri = link;
 
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                String url = uri;
-
                     // view.getContext() will get context of MainActivity
                 Context mainActivityContext = view.getContext();
+
+                    // if no network state, return
+                MainActivity activity  = (MainActivity) mainActivityContext;
+                if (!activity.hasNetworkConnection())
+                    return;
+
+                String url = uri;
 
                     // add preceding http
                 if (!url.startsWith("http://") && !url.startsWith("https://"))
                     url = "http://" + url;
 
-                Log.d("ListItemViewModel", "Context: " + view.getContext());
-                Log.d("ListItemViewModel", "url: " + url);
+                Log.d(TAG, "Context: " + view.getContext());
+                Log.d(TAG, "url: " + url);
 
                     // start new intent to watch video in default internet browser
-                Intent watchVidIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                mainActivityContext.startActivity(watchVidIntent);
-
-                //Toast.makeText(view.getContext(), "Opens URL here", Toast.LENGTH_SHORT).show();
-
-
+                try {
+                    Intent watchVidIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    mainActivityContext.startActivity(watchVidIntent);
+                } catch (Exception e){
+                    Log.e(TAG, "Something went wrong while trying to start open video in Browser");
+                }
             }
         };
     }
@@ -70,14 +73,16 @@ public class ListItemViewModel {
     @BindingAdapter("imgUrl")
     public static void loadImage(ImageView view, String url) {
 
-            // before proceeding, need to check Network state here!
+        Context mainActivityContext = view.getContext();
 
+            // if no network state, return
+        MainActivity activity  = (MainActivity) mainActivityContext;
+        if (!activity.hasNetworkConnection())
+            return;
 
         Log.d("Setter", "trying to image with url " + url);
 
-
-
-        if (url==null) {
+        if (url == null) {
             Log.d("CustomSetters imgUrl", "The URL was null. No Image set");
             return;
         }
@@ -87,10 +92,16 @@ public class ListItemViewModel {
             return;
         }
 
-        new DownloadImgTask(view).execute(url);
+        try{
+
+            new DownloadImgTask(view).execute(url);
+
+        }catch (Exception e){
+            Log.e("ListItemViewModel", "Something went wrong trying to load image from URL on async thread");
+        }
     }
 
-    // function used for debugging
+        // function used for debugging
     public String printVidInfo(Video vid){
         return "title: " + vid.name + "\n vid url: " + vid.link + "\n; user/name: " + vid.user.name + "; user/getName: " + vid.user.getName()
                 + "; duration: " + vid.duration;
