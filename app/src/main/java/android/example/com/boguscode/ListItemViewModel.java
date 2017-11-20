@@ -34,6 +34,10 @@ public class ListItemViewModel {
     * @return returns my definition of a Listener
     */
     public View.OnClickListener onOpenUrlWithBrowser(String link) {
+
+            // before proceeding, need to check Network state here!
+
+
         final String uri = link;
 
         return new View.OnClickListener() {
@@ -65,7 +69,12 @@ public class ListItemViewModel {
 
     @BindingAdapter("imgUrl")
     public static void loadImage(ImageView view, String url) {
+
+            // before proceeding, need to check Network state here!
+
+
         Log.d("Setter", "trying to image with url " + url);
+
 
 
         if (url==null) {

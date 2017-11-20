@@ -12,8 +12,8 @@ import com.vimeo.networking.model.error.VimeoError;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
+//import io.reactivex.Observable;
+//import io.reactivex.Observer;
 import retrofit2.Callback;
 
 /**

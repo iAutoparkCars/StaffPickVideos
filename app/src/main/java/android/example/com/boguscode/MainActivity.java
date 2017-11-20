@@ -2,6 +2,7 @@ package android.example.com.boguscode;
 
 import android.content.Context;
 import android.example.com.boguscode.models.*;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -15,7 +16,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 import com.vimeo.networking.Configuration;
 import com.vimeo.networking.GsonDeserializer;
 import com.vimeo.networking.VimeoClient;
@@ -30,8 +34,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
+//import io.reactivex.Observable;
+//import io.reactivex.ObservableSource;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -84,11 +93,18 @@ public class MainActivity extends AppCompatActivity{
     TabLayout tabLayout;
     TabPagerAdapter pagerAdapter;
 
+    // variables for observing network state
+    private Disposable networkDisposable;
+    private Disposable internetDisposable;
+    private boolean isConnected;
+    public boolean hasNetworkConnection() { return this.isConnected; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
             // instantiate fragments for each list
         recentFragment = new BlankFragment();
@@ -222,8 +238,63 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     public void onResume() {
+
         super.onResume();
+        networkDisposable = ReactiveNetwork.observeNetworkConnectivity(getApplicationContext())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Connectivity>() {
+                    @Override
+                    public void accept(Connectivity connectivity) throws Exception {
+                        Log.d(TAG, connectivity.toString());
+                        final NetworkInfo.State state = connectivity.getState();
+                        final String name = connectivity.getTypeName();
+
+
+                        Log.d(TAG, String.format("state: %s, typeName: %s", state, name));
+                    }
+                });
+
+                /*.subscribe(connectivity -> {
+                    Log.d(TAG, connectivity.toString());
+                    final NetworkInfo.State state = connectivity.getState();
+                    final String name = connectivity.getTypeName();
+
+                    Log.d(TAG, "Connection status: " + name);
+
+                    tvConnectivityStatus.setText(String.format("state: %s, typeName: %s", state, name));
+                });*/
+
+        internetDisposable = ReactiveNetwork.observeInternetConnectivity()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean isConnected) throws Exception {
+                        Log.d(TAG, "is Connected? " + isConnected);
+
+                        MainActivity.this.isConnected = isConnected;
+
+                    }
+                });
+                //.subscribe(isConnected -> tvInternetStatus.setText(isConnected.toString()));
+
+
     }
+
+    @Override protected void onPause() {
+        super.onPause();
+        safelyDispose(networkDisposable, internetDisposable);
+    }
+
+    private void safelyDispose(Disposable... disposables) {
+        for (Disposable subscription : disposables) {
+            if (subscription != null && !subscription.isDisposed()) {
+                subscription.dispose();
+            }
+        }
+    }
+
 
     private void configureVimeoAuthentication(){
         Configuration.Builder configBuilder =
@@ -280,7 +351,7 @@ public class MainActivity extends AppCompatActivity{
         /*this method won't execute until there's a subscriber
         */
 
-    public Observable<List<Video>> getVideosObservable(DownloadVidsTask task){
+    /*public Observable<List<Video>> getVideosObservable(DownloadVidsTask task){
         final DownloadVidsTask t = task;
         return Observable.defer(new Callable<ObservableSource<? extends List<Video>>>() {
             @Override
@@ -288,7 +359,7 @@ public class MainActivity extends AppCompatActivity{
                 return Observable.just(t.downloadVideos());
             }
         });
-    }
+    }*/
 
     public boolean vidsResponseError(List<Video> videos, String taskName){
         if (videos.size() == 0) {
