@@ -46,6 +46,7 @@ public class DownloadVidsTask {
         this.page = 0;
         this.per_page = per_page;
         this.uri = uri;
+        this.max_page = -1;
     }
 
     public DownloadVidsTask(String name, int per_page, String uri, OnTaskCompleted listener){
@@ -63,10 +64,15 @@ public class DownloadVidsTask {
 
             // decide whether to proceed. If max_page reached, don't make any GET requests
         page++;
+
+        Log.d(TAG, "Download called. on page: " + page + " max_page: " + this.max_page);
+
         if (totalNumberResultsInitialized()){
             max_page = (int) Math.ceil(  ((double)total/(double)per_page) );
-            if (page > max_page)
+            if (page > max_page){
+                Log.d(TAG, "last page reached. no more infinite scrolling");
                 return null;
+            }
         }
 
             // "/channels/<channel_name>/videos?page=1&per_page=15"

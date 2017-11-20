@@ -22,10 +22,15 @@ import java.util.List;
 public class BlankFragment extends Fragment {
 
     private final String TAG = getClass().getName();
+
     private RecyclerView recView;
+    private DownloadVidsTask task;
+
     VidListAdapter adapter;
     public String fragmentName;
+
     public void setName(String name) { this.fragmentName = name; }
+    public void setTask(DownloadVidsTask task) { this.task = task; }
 
     public BlankFragment(){}
 
@@ -33,6 +38,7 @@ public class BlankFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         adapter = getAdapter();
+
     }
 
     @Override
@@ -67,7 +73,6 @@ public class BlankFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_vid_list, container, false);
         recView = (RecyclerView) rootView.findViewById(R.id.rv_recycler_view);
 
-
         recView.setHasFixedSize(true);
 
             // using an ArrayList for better performance since I will be adding often
@@ -86,8 +91,55 @@ public class BlankFragment extends Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         recView.setLayoutManager(llm);
 
+            // infinite scrolling here
+        setInfiniteScrolling(llm);
+
         return rootView;
     }
+
+    public void setInfiniteScrolling(final LinearLayoutManager layoutManager){
+
+        recView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            int pastVisiblesItems, visibleItemCount, totalItemCount;
+            boolean loading = true;
+
+            int oldLastItem;
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy)
+            {
+
+                if(dy > 0) // if scroll is a downscroll
+                {
+                    //Log.d(TAG, "dx: " + dx + " dy: " + dy);
+                    visibleItemCount = layoutManager.getChildCount();
+                    totalItemCount = layoutManager.getItemCount();
+                    pastVisiblesItems = layoutManager.findFirstVisibleItemPosition();
+                    Log.d(TAG, "visibleItemCount: " + visibleItemCount + " totalItemCount: " + totalItemCount
+                            + " pastVisibleItems: " + pastVisiblesItems);
+
+                    if (loading) {
+                        if ( (visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                            loading = false;
+                            //DownloadVidsTask task = ((MainActivity) getActivity()).tasks.get(fragmentName);
+
+                            Log.d(TAG, "Last Item Wow. activity: " + task.getName() + " total: " + task.getPage());
+                            task.downloadVideos();
+                        }
+                    }
+                }
+
+                /* reset when last item is out of view(below) on down or up scroll
+                 * if you want to wait for 2 items to disappear to reset, do totalItemCount-1, so forth
+                */
+                if ( (visibleItemCount+pastVisiblesItems) < totalItemCount) {
+                    loading = true;
+                }
+            }
+        });
+    }
+
 
         // add items to adapter here, then call adapter.notifyItemRangeInserted
     public void addItems(List<Video> videos){

@@ -31,7 +31,9 @@ import com.vimeo.networking.model.error.VimeoError;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity{
     private final String MONTH_VIDS = "Month Vids";
     private final String YEAR_VIDS = "Year Vids";
 
+    Map<String, DownloadVidsTask> tasks;
     DownloadVidsTask getStaffVidsTask;
     DownloadVidsTask getPremiereVidsTask;
     DownloadVidsTask getBestMonthVidsTask;
@@ -105,11 +108,10 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-            // instantiate fragments for each list
-        recentFragment = new BlankFragment();
-        premiereFragment = new BlankFragment();
-        monthFragment = new BlankFragment();
-        yearFragment = new BlankFragment();
+            // start 4 fragments; set their names; map names to its task
+        initFragments();
+        setFragmentNames();
+        mapNamesToTask();
 
             // Get the ViewPager and set it's TabPagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -199,6 +201,10 @@ public class MainActivity extends AppCompatActivity{
         getBestMonthVidsTask = new DownloadVidsTask(MONTH_VIDS, PER_PAGE, "/channels/bestofthemonth/videos", bestMonthDone);
         getBestYearVidsTask = new DownloadVidsTask(YEAR_VIDS, PER_PAGE, "/channels/bestoftheyear/videos", bestYearDone);
 
+        recentFragment.setTask(getStaffVidsTask);
+        premiereFragment.setTask(getPremiereVidsTask);
+        monthFragment.setTask(getBestMonthVidsTask);
+        yearFragment.setTask(getBestYearVidsTask);
 
         // ---- Client Credentials Authenticate ----
         if (mApiClient.getVimeoAccount().getAccessToken() == null) {
@@ -214,33 +220,35 @@ public class MainActivity extends AppCompatActivity{
                 //new GetVidsAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
-        /*mListView = (ListView) findViewById(R.id.activity_main_listview);
-        mAdapter = new VideoAdapter(this, R.id.list_item_video_name_textview, items);
-        mListView.setAdapter(mAdapter);*/
-
-        String baseUri = "https://api.vimeo.com/channels/staffpicks/videos";
-
     }
 
-    public void loadViews(){
-        if (staffTaskDone && premiereTaskDone && monthTaskDone && yearTaskDone){
-            // for all tabs, set the Recycler List views
-            for (int i = 0; i < tabLayout.getTabCount(); i++) {
-                TabLayout.Tab tab = tabLayout.getTabAt(i);
-                tab.setCustomView(pagerAdapter.getTabView(i));
-            }
-        }else{
-            Log.d(TAG, "one task returned, but not all");
-        }
+    private void mapNamesToTask() {
+        tasks = new HashMap<String, DownloadVidsTask>();
+        tasks.put(STAFF_VIDS, getStaffVidsTask);
+        tasks.put(PREMIERE_VIDS, getPremiereVidsTask);
+        tasks.put(MONTH_VIDS, getBestMonthVidsTask);
+        tasks.put(YEAR_VIDS, getBestYearVidsTask);
+    }
 
+    private void setFragmentNames() {
+        recentFragment.setName(STAFF_VIDS);
+        premiereFragment.setName(PREMIERE_VIDS);
+        monthFragment.setName(MONTH_VIDS);
+        yearFragment.setName(YEAR_VIDS);
+    }
+
+    private void initFragments() {
+        // instantiate fragments for each list
+        recentFragment = new BlankFragment();
+        premiereFragment = new BlankFragment();
+        monthFragment = new BlankFragment();
+        yearFragment = new BlankFragment();
     }
 
     @Override
     public void onResume() {
-
         super.onResume();
         checkNetworkState();
-
     }
 
     private void checkNetworkState() {
@@ -255,14 +263,14 @@ public class MainActivity extends AppCompatActivity{
                         final NetworkInfo.State state = connectivity.getState();
 
                         if (state == NetworkInfo.State.DISCONNECTED || state == NetworkInfo.State.DISCONNECTING){
-                            // some message to show user there is no network connection
+                            //Log.d(TAG, "Disconnected");
                             Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.networkDisconnected), Toast.LENGTH_LONG);
                         }
 
-                        if (state == NetworkInfo.State.CONNECTED){
+                        if (state == NetworkInfo.State.CONNECTED || state == NetworkInfo.State.CONNECTING){
                             MainActivity.this.isConnected = true;
-                            Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.networkConnected), Toast.LENGTH_LONG);
-                            Log.d(TAG, "There is now network connection.");
+                            Toast.makeText(MainActivity.this, MainActivity.this.getString(R.string.networkConnected), Toast.LENGTH_SHORT);
+                            //Log.d(TAG, "There is now network connection.");
                         }
 
                         final String name = connectivity.getTypeName();
@@ -288,6 +296,11 @@ public class MainActivity extends AppCompatActivity{
         safelyDispose(networkDisposable, internetDisposable);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        safelyDispose(networkDisposable, internetDisposable);
+    }
         // free up resources by disposing
     private void safelyDispose(Disposable... disposables) {
         for (Disposable subscription : disposables) {
@@ -364,12 +377,12 @@ public class MainActivity extends AppCompatActivity{
     }*/
 
     public boolean vidsResponseError(List<Video> videos, String taskName){
-        if (videos.size() == 0) {
-            Log.e(TAG, "JSON response success, but List<Video> for is empty for task " + taskName);
+        if (videos == null){
+            Log.e(TAG, "API call failed; no JSON response");
             return true;
         }
-        else if (videos == null){
-            Log.e(TAG, "API call failed; no JSON response");
+        else if (videos.size() == 0) {
+            Log.e(TAG, "JSON response success, but List<Video> for is empty for task " + taskName);
             return true;
         }
         else{

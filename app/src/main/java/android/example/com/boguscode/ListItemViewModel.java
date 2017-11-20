@@ -24,6 +24,7 @@ public class ListItemViewModel {
     private VideoItem vidItem;
     private Context mContext;
 
+
     public ListItemViewModel(VideoItem vidItem, Context context){
         this.vidItem = vidItem;
         this.mContext = context;
@@ -47,8 +48,9 @@ public class ListItemViewModel {
 
                     // if no network state, return
                 MainActivity activity  = (MainActivity) mainActivityContext;
-                if (!activity.hasNetworkConnection())
+                if (!activity.hasNetworkConnection()){
                     return;
+                }
 
                 String url = uri;
 
@@ -70,27 +72,26 @@ public class ListItemViewModel {
         };
     }
 
+    MainActivity activity;
     @BindingAdapter("imgUrl")
     public static void loadImage(ImageView view, String url) {
 
-        Context mainActivityContext = view.getContext();
-
-            // if no network state, return
-        MainActivity activity  = (MainActivity) mainActivityContext;
-        if (!activity.hasNetworkConnection())
+            // check if you have network connection before downloading images
+        if (!((MainActivity) view.getContext()).hasNetworkConnection()){
+            Log.d("ListItemViewModel", "No network connection; didn't fetch image");
             return;
+        }
 
-        Log.d("Setter", "trying to image with url " + url);
+        //Log.d("Setter", "trying to image with url " + url);
 
         if (url == null) {
             Log.d("CustomSetters imgUrl", "The URL was null. No Image set");
             return;
         }
-
-        if (hasImage(view)){
+        /*if (hasImage(view)){
             Log.d("CustomSetters imgUrl", "View already has image. Tried to set with url: " + url );
             return;
-        }
+        }*/
 
         try{
 
