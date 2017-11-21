@@ -13,10 +13,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;;import com.vimeo.networking.model.Video;
+;import com.vimeo.networking.model.Video;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class BlankFragment extends Fragment {
@@ -101,7 +100,7 @@ public class BlankFragment extends Fragment {
 
         recView.addOnScrollListener(new RecyclerView.OnScrollListener()
         {
-            int pastVisiblesItems, visibleItemCount, totalItemCount;
+            int pastVisibleItems, visibleItemCount, totalItemCount;
             boolean loading = true;
 
             int oldLastItem;
@@ -112,18 +111,16 @@ public class BlankFragment extends Fragment {
 
                 if(dy > 0) // if scroll is a downscroll
                 {
-                    //Log.d(TAG, "dx: " + dx + " dy: " + dy);
                     visibleItemCount = layoutManager.getChildCount();
                     totalItemCount = layoutManager.getItemCount();
-                    pastVisiblesItems = layoutManager.findFirstVisibleItemPosition();
-                    Log.d(TAG, "visibleItemCount: " + visibleItemCount + " totalItemCount: " + totalItemCount
-                            + " pastVisibleItems: " + pastVisiblesItems);
+                    pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
+
+                    //Log.d(TAG, "visibleItemCount: " + visibleItemCount + " totalItemCount: " + totalItemCount
+                    //        + " pastVisibleItems: " + pastVisibleItems);
 
                     if (loading) {
-                        if ( (visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                        if ( (visibleItemCount + pastVisibleItems) >= totalItemCount) {
                             loading = false;
-                            //DownloadVidsTask task = ((MainActivity) getActivity()).tasks.get(fragmentName);
-
                             Log.d(TAG, "Last Item Wow. activity: " + task.getName() + " total: " + task.getPage());
                             task.downloadVideos();
                         }
@@ -133,7 +130,7 @@ public class BlankFragment extends Fragment {
                 /* reset when last item is out of view(below) on down or up scroll
                  * if you want to wait for 2 items to disappear to reset, do totalItemCount-1, so forth
                 */
-                if ( (visibleItemCount+pastVisiblesItems) < totalItemCount) {
+                if ( (visibleItemCount+ pastVisibleItems) < totalItemCount) {
                     loading = true;
                 }
             }

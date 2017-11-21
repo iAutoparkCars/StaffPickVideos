@@ -3,6 +3,7 @@ package android.example.com.boguscode.models;
 import android.example.com.boguscode.OnTaskCompleted;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.vimeo.networking.VimeoClient;
 import com.vimeo.networking.model.Video;
@@ -65,9 +66,11 @@ public class DownloadVidsTask {
             // decide whether to proceed. If max_page reached, don't make any GET requests
         page++;
 
-        Log.d(TAG, "Download called. on page: " + page + " max_page: " + this.max_page);
+        if (callbacks != null && callbacks.getTotal() != 0){
 
-        if (totalNumberResultsInitialized()){
+            this.total = callbacks.getTotal();
+            Log.d(TAG, "Download called. on page: " + page + " max_page: " + this.max_page + " total: " + total);
+
             max_page = (int) Math.ceil(  ((double)total/(double)per_page) );
             if (page > max_page){
                 Log.d(TAG, "last page reached. no more infinite scrolling");

@@ -59,10 +59,20 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         }
 
 
+
+        // call this to bind the ViewModel to this item in RecView (the ViewHolder)
+        this.cardBinding.setItemViewModel(new ListItemViewModel(model, context));
+
+
+
         this.cardBinding.setVideoItem(model);
 
-            // call this to bind the ViewModel to this item in RecView (the ViewHolder)
-        this.cardBinding.setItemViewModel(new ListItemViewModel(model, context));
+        // all these must be called after image is rendered
+       /* this.cardBinding.textBackground.setVisibility(View.VISIBLE);
+        this.cardBinding.duration.setVisibility(View.VISIBLE);
+        this.cardBinding.userName.setVisibility(View.VISIBLE);
+        this.cardBinding.videoName.setVisibility(View.VISIBLE);*/
+
 
         //this.binding.setHandler(new FavImgClickHandler());
         //this.binding.executePendingBindings();

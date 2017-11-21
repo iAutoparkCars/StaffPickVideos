@@ -73,6 +73,20 @@ public class ListItemViewModel {
     }
 
     MainActivity activity;
+
+
+    private static boolean visibility = false;
+    public static int getVisibility(){
+        if (visibility)
+            return View.VISIBLE;
+        else{
+            return View.INVISIBLE;
+        }
+    }
+    public static void setVisibility(boolean setVisible){
+        visibility = setVisible;
+    }
+
     @BindingAdapter("imgUrl")
     public static void loadImage(ImageView view, String url) {
 

@@ -35,9 +35,10 @@ public class CallBacks extends ModelCallback<VideoList> implements Callback<Vide
 
             /* Pass total # of results (total should not change) on 1st success.
              update the # page fetched. Page cannot surpass max page.     */
-            if (!totalNumberResultsInitialized())
+            if (this.total == 0)
                 this.total = videoList.total;
 
+            Log.d(TAG, "from Callbacks. Total: " + total);
             // Create List of Vimeo Videos
             List<Video> videos = new ArrayList<>();
             Log.d(TAG, "GOT VIDEOS SUCCESS");

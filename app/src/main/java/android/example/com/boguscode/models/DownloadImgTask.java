@@ -1,9 +1,11 @@
 package android.example.com.boguscode.models;
 
+import android.example.com.boguscode.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.InputStream;
 
@@ -32,8 +34,18 @@ public class DownloadImgTask extends AsyncTask<String, Void, Bitmap> {
     }
 
     protected void onPostExecute(Bitmap result) {
+
         if (result != null) {
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            ListItemViewModel.setVisibility(true);
+
             bmImage.setImageBitmap(result);
         }
+
     }
 }
