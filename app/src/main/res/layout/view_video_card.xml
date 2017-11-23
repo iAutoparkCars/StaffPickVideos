@@ -16,19 +16,16 @@
             type="android.example.com.boguscode.ListItemViewModel" />
     </data>
 
-<android.support.v7.widget.CardView android:id="@+id/card_view"
-
+<android.support.v7.widget.CardView
+    android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_margin="0dp"
-    android:layout_height="210dp"
+    android:layout_height="215dp"
     card_view:cardCornerRadius="0dp"
-    card_view:elevation="14dp"
+    card_view:elevation="4dp"
     android:clickable="true"
-
+    android:background="@color/cardview_dark_background"
     android:onClick="@{itemViewModel.onOpenUrlWithBrowser(videoItem.vidUrl)}"
-
-    
-
     >
 
     <android.support.constraint.ConstraintLayout
@@ -36,98 +33,125 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ImageView
+            android:id="@+id/videoThumbnail"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            app:imgUrl="@{videoItem.thumbnailUrl}"
+            app:progressVisible="@{progressBar}"
+
+            />
+        <!---->
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@+id/videoThumbnail"
+            android:layout_marginTop="74dp"
+            android:layout_marginRight="162dp"
+            android:visibility="visible"
+
+            android:indeterminate="true"
+            android:indeterminateDrawable="@drawable/custom_progress_bar"
+
+            app:layout_constraintRight_toRightOf="@+id/videoThumbnail"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintHorizontal_bias="0.967"/>
+
+        <!--android:visibility="@{videoItem.progressVisibility}"-->
+
+        <android.support.v4.widget.Space
+            android:id="@+id/marginSpacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="102dp"
+            app:layout_constraintBottom_toBottomOf="@+id/videoThumbnail"
+            app:layout_constraintLeft_toLeftOf="@+id/videoThumbnail"
+            app:layout_constraintRight_toRightOf="@+id/videoThumbnail"
+            app:layout_constraintHorizontal_bias="1.0"/>
+
         <TextView
             android:id="@+id/textBackground"
-            android:layout_width="388dp"
-            android:layout_height="72dp"
-            android:text=""
-            android:background="@color/cardview_shadow_start_color"
-            card_view:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="-7dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="0dp"
-            card_view:layout_constraintLeft_toLeftOf="@+id/videoThumbnail"
-            tools:layout_editor_absoluteY="138dp"
-            android:visibility="@{itemViewModel.visibility}"
+
+            android:layout_width="0dp"
+            android:layout_height="51dp"
+            android:textSize="8sp"
+            android:background="#CC202020"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/videoThumbnail"
+            app:layout_constraintTop_toTopOf="@+id/videoThumbnail"
+            android:layout_marginTop="8dp"
+            app:layout_constraintVertical_bias="1.0"
+            app:layout_constraintHorizontal_bias="1.0"
             />
         <!-- android:visibility="@{itemViewModel.visibility}"-->
 
 
         <TextView
             android:id="@+id/videoName"
-            android:layout_width="123dp"
-            android:layout_height="26dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@{videoItem.name}"
-            android:textSize="22sp"
+            android:textSize="15sp"
+            android:textColor="#aaede7e7"
+            android:textStyle="bold"
             android:maxLines="1"
-            card_view:layout_constraintTop_toTopOf="@+id/textBackground"
-            android:layout_marginTop="7dp"
-            android:layout_marginRight="286dp"
-            card_view:layout_constraintRight_toRightOf="@+id/textBackground"
+            android:maxWidth="250dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-light"
+
+            app:layout_constraintTop_toTopOf="@+id/textBackground"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="8dp"
-            card_view:layout_constraintLeft_toLeftOf="@+id/textBackground"
-            card_view:layout_constraintHorizontal_bias="0.0"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="286dp"
-            tools:layout_editor_absoluteY="145dp"
-            android:visibility="@{itemViewModel.visibility}"
-            />
+            app:layout_constraintLeft_toLeftOf="@+id/textBackground"
+            android:layout_marginStart="8dp"/>
+        <!--android:text="@{videoItem.name}"-->
 
         <TextView
             android:id="@+id/userName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{videoItem.userName}"
+            android:maxWidth="200dp"
             android:textSize="14sp"
-            android:layout_marginRight="265dp"
-            card_view:layout_constraintRight_toRightOf="@+id/textBackground"
-            card_view:layout_constraintBottom_toBottomOf="@+id/textBackground"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp"
-            card_view:layout_constraintTop_toBottomOf="@+id/videoName"
-            card_view:layout_constraintVertical_bias="1.0"
-            android:layout_marginLeft="9dp"
-            card_view:layout_constraintLeft_toLeftOf="@+id/textBackground"
-            card_view:layout_constraintHorizontal_bias="0.0"
-            android:visibility="@{itemViewModel.visibility}"
-            />
+            android:textColor="#aaede7e7"
+            android:fontFamily="sans-serif-light"
+            android:ellipsize="end"
+
+            app:layout_constraintTop_toBottomOf="@+id/videoName"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginStart="8dp"/>
 
         <TextView
             android:id="@+id/duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="duration"
-            android:textSize="22sp"
-            android:layout_marginRight="39dp"
-            card_view:layout_constraintRight_toRightOf="@+id/textBackground"
-            android:layout_marginStart="191dp"
-            android:layout_marginEnd="8dp"
-            card_view:layout_constraintTop_toTopOf="@+id/textBackground"
-            android:layout_marginTop="7dp"
-            android:visibility="@{itemViewModel.visibility}"
-            />
-
-        <ImageView
-            android:id="@+id/videoThumbnail"
-            android:layout_width="385dp"
-            android:layout_height="165dp"
-            card_view:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="0dp"
-            android:elevation="8dp"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginLeft="0dp"
-            card_view:layout_constraintLeft_toLeftOf="parent"
-            card_view:layout_constraintTop_toTopOf="parent"
+            android:text="@{videoItem.duration}"
+            android:textSize="14sp"
+            android:textColor="#aaede7e7"
+            android:fontFamily="sans-serif-smallcaps"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toRightOf="@+id/videoName"
+            android:layout_marginLeft="179dp"
+            app:layout_constraintTop_toTopOf="@+id/textBackground"
             android:layout_marginTop="8dp"
-            tools:layout_editor_absoluteY="52dp"
-            card_view:layout_constraintVertical_bias="0.0"
-            android:scaleType="centerCrop"
-            app:imgUrl="@{videoItem.thumbnailUrl}"
-
-            />
-        <!--  app:imgUrl="@{videoItem.thumbnailUrl}"-->
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            android:layout_marginStart="179dp"
+            android:layout_marginEnd="8dp"/>
 
 
 
@@ -150,4 +174,4 @@
 
 
 </android.support.v7.widget.CardView>
-    </layout>
+</layout>

@@ -6,11 +6,11 @@
         android:id="@+id/tab_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="test"
+        android:fontFamily="sans-serif-smallcaps"
         android:background="?attr/selectableItemBackground"
         android:gravity="center"
         android:textSize="14dp"
-        android:textColor="#ffffff"
+        android:textColor="#BBC8C8DD"
         android:maxLines="1"
         />
 </LinearLayout>

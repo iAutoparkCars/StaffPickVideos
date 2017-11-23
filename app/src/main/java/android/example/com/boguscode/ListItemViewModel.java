@@ -2,12 +2,15 @@ package android.example.com.boguscode;
 
 import android.content.Context;
 import android.content.Intent;
+import android.databinding.BaseObservable;
 import android.databinding.BindingAdapter;
 import android.example.com.boguscode.models.*;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.vimeo.networking.model.Video;
@@ -18,16 +21,19 @@ import java.net.URL;
  * Created by Steven on 11/16/2017.
  */
 
-public class ListItemViewModel {
+public class ListItemViewModel extends BaseObservable{
+
 
     final String TAG = "listItemViewModel";
     private VideoItem vidItem;
     private Context mContext;
+    private int progressVisbility = View.VISIBLE;
 
 
     public ListItemViewModel(VideoItem vidItem, Context context){
         this.vidItem = vidItem;
         this.mContext = context;
+
     }
 
     /*  Open URL with browser.
@@ -72,23 +78,8 @@ public class ListItemViewModel {
         };
     }
 
-    MainActivity activity;
-
-
-    private static boolean visibility = false;
-    public static int getVisibility(){
-        if (visibility)
-            return View.VISIBLE;
-        else{
-            return View.INVISIBLE;
-        }
-    }
-    public static void setVisibility(boolean setVisible){
-        visibility = setVisible;
-    }
-
-    @BindingAdapter("imgUrl")
-    public static void loadImage(ImageView view, String url) {
+    @BindingAdapter({"imgUrl", "progressVisible"})
+    public static void loadImage(ImageView view, String url, ProgressBar progressBar) {
 
             // check if you have network connection before downloading images
         if (!((MainActivity) view.getContext()).hasNetworkConnection()){
@@ -102,19 +93,24 @@ public class ListItemViewModel {
             Log.d("CustomSetters imgUrl", "The URL was null. No Image set");
             return;
         }
-        /*if (hasImage(view)){
+
+        if (hasImage(view)){
             Log.d("CustomSetters imgUrl", "View already has image. Tried to set with url: " + url );
             return;
-        }*/
+        }
 
         try{
+                // executed on single thread so initial URL's load faster. Superior UX-wise
+            new DownloadImgTask(view, progressBar).execute(url);
 
-            new DownloadImgTask(view).execute(url);
+                // makes app 'appear' slower
+            //new DownloadImgTask(view, progressBar).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR ,url);
 
         }catch (Exception e){
             Log.e("ListItemViewModel", "Something went wrong trying to load image from URL on async thread");
         }
     }
+
 
         // function used for debugging
     public String printVidInfo(Video vid){

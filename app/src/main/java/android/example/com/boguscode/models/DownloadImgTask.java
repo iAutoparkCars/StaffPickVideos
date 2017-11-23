@@ -4,8 +4,13 @@ import android.example.com.boguscode.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.vimeo.networking.model.Video;
 
 import java.io.InputStream;
 
@@ -16,13 +21,22 @@ import java.io.InputStream;
 public class DownloadImgTask extends AsyncTask<String, Void, Bitmap> {
 
     ImageView bmImage;
+    VideoItem videoItem;
+    ProgressBar progressBar;
+    String url;
 
-    public DownloadImgTask(ImageView bmImage) {
+    public DownloadImgTask(ImageView bmImage, ProgressBar bar) {
         this.bmImage = bmImage;
+        progressBar = bar;
+    }
+
+    public void setProgressBar(ProgressBar bar){
+        this.progressBar = bar;
     }
 
     protected Bitmap doInBackground(String... urls) {
         String urldisplay = urls[0];
+        url = urldisplay;
         Bitmap bitmap = null;
         try {
             InputStream in = new java.net.URL(urldisplay).openStream();
@@ -36,15 +50,11 @@ public class DownloadImgTask extends AsyncTask<String, Void, Bitmap> {
     protected void onPostExecute(Bitmap result) {
 
         if (result != null) {
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            ListItemViewModel.setVisibility(true);
-
             bmImage.setImageBitmap(result);
+            progressBar.setVisibility(View.GONE);
+
+            String msg = (progressBar == null)? "progressBar is null" : (""+progressBar.getVisibility()+" url: " + url);
+            Log.d("ListItem", msg);
         }
 
     }

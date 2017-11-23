@@ -33,7 +33,7 @@
         android:elevation="6dp"
         app:tabTextColor="#d3d3d3"
         app:tabSelectedTextColor="#ffffff"
-        app:tabIndicatorColor="#ff00ff"
+        app:tabIndicatorColor="#BBD9D9EE"
         android:minHeight="40dp"
         />
 

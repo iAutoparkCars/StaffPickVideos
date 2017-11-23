@@ -139,6 +139,7 @@ public class MainActivity extends AppCompatActivity{
                 staffTaskDone = true;
 
                 if (vidsResponseError(videos, getStaffVidsTask.getName())) return;
+
                 getFragment(recentFragment, STAFF_VIDS).addItems(videos);
             }
         };
@@ -147,12 +148,9 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onDownloadTaskCompleted(List<Video> videos) {
                 premiereTaskDone = true;
-                //loadViews();
 
                 if (vidsResponseError(videos, getPremiereVidsTask.getName())) return;
 
-
-                // here it is saying adapter is null??
                 getFragment(premiereFragment, PREMIERE_VIDS).addItems(videos);
             }
         };
@@ -161,13 +159,8 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onDownloadTaskCompleted(List<Video> videos) {
                 monthTaskDone = true;
-                //loadViews();
 
                 if (vidsResponseError(videos, getBestMonthVidsTask.getName())) return;
-
-                if (monthFragment == null)
-                    Log.d(TAG, "month fragment is null");
-
 
                 getFragment(monthFragment, MONTH_VIDS).addItems(videos);
             }
@@ -177,22 +170,10 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onDownloadTaskCompleted(List<Video> videos) {
                 yearTaskDone = true;
-                //loadViews();
 
                 if (vidsResponseError(videos, getBestYearVidsTask.getName())) return;
 
                 getFragment(yearFragment, YEAR_VIDS).addItems(videos);
-
-                /*Video video = videos.get(0);
-                Log.d(TAG, printVidInfo(video));
-                for (Picture pic : video.pictures.sizes){
-                    Log.d(TAG, "url: " + pic.link);
-                }*/
-
-                /*for (Video vid : videos) {
-                    Log.d(TAG, printVidInfo(vid));
-                    bestYearVids.add(vid);
-                };*/
             }
         };
 

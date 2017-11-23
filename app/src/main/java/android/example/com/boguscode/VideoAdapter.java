@@ -53,7 +53,7 @@ public class VideoAdapter extends ArrayAdapter<JSONObject> {
             e.printStackTrace();
         }
         if (uri != null) {
-            new DownloadImgTask(imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri);
+            //new DownloadImgTask(imageView).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri);
         }
         nameTextView.setText(video.optString("name", ""));
 
