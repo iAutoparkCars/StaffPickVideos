@@ -44,12 +44,14 @@
   > Custom-made views and UI design. Immersive (full-screen) and pleasant viewing experience.
 	
 # Development Process
-### Agile Management
-  > Leverage my working knowledge and training in agile project management for the app.
+### Agile
+  > Leverage my training in agile project management for the app.
   Three development iterations: Networking layer, Design, Refactoring/Documentation.
   
   Had a milestones and groomed product backlog.
-  
+  ![scanned milestones1](https://user-images.githubusercontent.com/14288932/33225264-149ae514-d142-11e7-9a27-0b15f1057814.png)
+  ![scanned draft backlog1](https://user-images.githubusercontent.com/14288932/33225265-1798ed06-d142-11e7-8250-eb7afa799472.png)
+
 
 0. After understanding the problem, I immediately made wireframes to draft designs, 
    and even got feedback from a couple of friends. 
