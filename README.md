@@ -48,9 +48,10 @@
   > Leverage my training in agile project management for the app.
   Three development iterations: Networking layer, Design, Refactoring/Documentation.
   
-  Had a milestones and groomed product backlog.
-  ![scanned milestones1](https://user-images.githubusercontent.com/14288932/33225264-149ae514-d142-11e7-9a27-0b15f1057814.png)
-  ![scanned draft backlog1](https://user-images.githubusercontent.com/14288932/33225265-1798ed06-d142-11e7-8250-eb7afa799472.png)
+  Had a milestones and groomed product backlog, if you're curious, you can view it here:
+  [milestone + backlog.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502666/milestone.backlog.pdf)
+
+
 
 
 0. After understanding the problem, I immediately made wireframes to draft designs, 
