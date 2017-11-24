@@ -54,19 +54,21 @@
    and got feedback from a couple of friends on the designs; they can be viewed here:
 	[Designs 1 and 2.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502668/Designs.1.and.2.pdf)  
 
-* 1st iteration Task Backlog
-	
-	1. created my Vimeo app/client
-	2. Used Vimeo library to generate auth token
-	3. Learned how to authenticate and make GET requests with Vimeo's library because it used Retrofit
-			-- found some things in the library that I'd like to change
-					--add an example for working authentication
-					--give additional clarity in the GET request example. It's async
-					--Video.getPlayCount() always returns null; maybe a bug. Several posts have been made on 
-					SO and Vimeo developer's forum			
-	4.  Make custom views to display four lists. The trick was to put the RecyclerView into a fragment, then
-		this fragment as part of PageViewer, then connect PageViewer to a TabLayout to move between lists.
-	5. separated the download video/download images tasks into new classes 
+* 1st iteration Task Backlog:
+
+	TO DO : 
+
+		1. created my Vimeo app/client
+		2. Used Vimeo library to generate auth token
+		3. Learned how to authenticate and make GET requests with Vimeo's library because it used Retrofit
+				-- found some things in the library that I'd like to change
+						--add an example for working authentication
+						--give additional clarity in the GET request example. It's async
+						--Video.getPlayCount() always returns null; maybe a bug. Several posts have been made on 
+						SO and Vimeo developer's forum			
+		4.  Make custom views to display four lists. The trick was to put the RecyclerView into a fragment, then
+			this fragment as part of PageViewer, then connect PageViewer to a TabLayout to move between lists.
+		5. separated the download video/download images tasks into new classes 
 
 * 2nd iteration Task Backlog:
 
@@ -97,3 +99,4 @@
 		7B. cache images                             skipped
 		8.  onClick CardView animation               skipped
 		9.  upload app to a free appstore            skipped
+
