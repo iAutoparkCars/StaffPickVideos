@@ -19,7 +19,7 @@
 * Clear, functional, and responsive UI
 	 > UI is easy to navigate and informational. Network state is observed with a library. 
 
-### Using **one** 3rd party reactive library to observe network state. 
+### Using **one** 3rd party reactive library to observe changes in network state. 
 
 ### Adding new features and functionality to the app is not necessary, but we appreciate...something extra. 
 * Four Categories
@@ -53,38 +53,27 @@
   [milestone + backlog.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502666/milestone.backlog.pdf)
 
 0. After understanding the problem, I immediately made wireframes to draft designs, 
-   and even got feedback from a couple of friends. 
+   and got feedback from a couple of friends on the designs; they can be viewed here:
+	[Designs 1 and 2.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502668/Designs.1.and.2.pdf)  
 1. created my Vimeo app/client
-2. Use Vimeo library to generate auth token, instead of generating developer's token (since it may expire after periods of no usage)
-3. Convert async to Retrofit for performance, but after reading through Vimeo's android library, 
-	saw that is uses Retrofit, so I learned how to authenticate and make GET requests with Vimeo's library.
+2. Used Vimeo library to generate auth token
+3. Learned how to authenticate and make GET requests with Vimeo's library because it used Retrofit
 		-- found some things in the library that I'd like to change
 				--add an example for working authentication
 				--give additional clarity in the GET request example. It's async
 				--Video.getPlayCount() always returns null; maybe a bug. Several posts have been made on 
-				SO and Vimeo developer's forum
-				
+				SO and Vimeo developer's forum			
 4.  Make custom views to display four lists. The trick was to put the RecyclerView into a fragment, then
 	this fragment as part of PageViewer, then connect PageViewer to a TabLayout to move between lists.
-				
-
 5. separated the download video/download images tasks into new classes 
-	
-	
 
-	See if I can use Vimeo networking to get 
-		0. if it works asynchronously 
-		1. get the 4 [VideoList]s
-		2. iterate through VideoList
-		2. edit GET request by page, and per_page
-		
 TO DO : 
 												
 	1. load image using URL and async task       DONE
 	2. Make cards clickable(to watch video)      DONE             
 	3A.make the network's state observable       DONE
 		   tested in subway
-	3B. infinite scrolling 						 DONE
+	3B. infinite scrolling 		             DONE
 		   debug redundant network calls
 		   reset load on hide last Card
 	3C. Cache http response                      skipped
@@ -96,18 +85,12 @@ TO DO :
 		iv. formatting data for display
 		v.  data binding for views and async loading
 		vi. loading progress bar + custom styling
-		vii. app icon, display time, title		 DONE
+		vii. app icon, display time, title   DONE
 	5. documentation
 	6A. Vid uniqueness using HashSet             DONE 
 	6B. pull-down refresh                        skipped
 	6C. search function                          skipped
 	7A. swipe to remove                          skipped
-	7B. cache images						     skipped
-	8.  onClick CardView animation				 skipped
+	7B. cache images			     skipped
+	8.  onClick CardView animation		     skipped
 	9.  upload app to a free appstore            skipped
-	
-
-
-
-
-
