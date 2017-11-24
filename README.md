@@ -45,14 +45,12 @@
 	
 # Development Process
 ### Agile
-  > Leverage my training in agile project management for the app.
+  > Leverage my training in agile project management for the app to 
+  work on tasks based on evolving priority.
   Three development iterations: Networking layer, Design, Refactoring/Documentation.
   
-  Had a milestones and groomed product backlog, if you're curious, you can view it here:
+  Had milestones and groomed product backlog, if you're curious, you can view it here:
   [milestone + backlog.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502666/milestone.backlog.pdf)
-
-
-
 
 0. After understanding the problem, I immediately made wireframes to draft designs, 
    and even got feedback from a couple of friends. 
