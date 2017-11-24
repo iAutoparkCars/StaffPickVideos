@@ -4,7 +4,7 @@
 1. MainActivity is located at root of project for convenience.
 > I refactored the project to outline MVVM architecture using Google's data binding (UI-heavy-logic all separated into ViewModels directory).
 	Network layer and models all now in Models directory. Activities, views, adapters, etc. all located in Views directory. 
-2. Please view ***Development Process*** to know how the development was executed
+2. Please view ***Development Process*** section below to know how the development was executed
 
 ### You’ve inherited code...elevate it to your own standard of quality.
 
@@ -53,6 +53,9 @@
 0. After understanding the problem, I immediately made wireframes to draft designs, 
    and got feedback from a couple of friends on the designs; they can be viewed here:
 	[Designs 1 and 2.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502668/Designs.1.and.2.pdf)  
+
+* 1st iteration Task Backlog
+>
 1. created my Vimeo app/client
 2. Used Vimeo library to generate auth token
 3. Learned how to authenticate and make GET requests with Vimeo's library because it used Retrofit
@@ -65,6 +68,8 @@
 	this fragment as part of PageViewer, then connect PageViewer to a TabLayout to move between lists.
 5. separated the download video/download images tasks into new classes 
 
+* 2nd iteration Task Backlog:
+>
 TO DO : 
 												
 	1. load image using URL and async task       DONE
