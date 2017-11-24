@@ -1,12 +1,10 @@
 # StaffPickVideos
 
-### Important notes before proceeding
+### Important notes before viewing running Project on device
 1. MainActivity is located at root of project for convenience.
 > I refactored the project to outline MVVM architecture using Google's data binding (UI-heavy-logic all separated into ViewModels directory).
 	Network layer and models all now in Models directory. Activities, views, adapters, etc. all located in Views directory. 
-
-
-
+2. Please view ***Development Process*** to know how the development was executed
 
 ### You’ve inherited code...elevate it to your own standard of quality.
 
