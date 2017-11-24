@@ -55,7 +55,7 @@
 	[Designs 1 and 2.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502668/Designs.1.and.2.pdf)  
 
 * 1st iteration Task Backlog
-	0. Needed proof of concept (proof that the design could implemented with existing API)
+	
 	1. created my Vimeo app/client
 	2. Used Vimeo library to generate auth token
 	3. Learned how to authenticate and make GET requests with Vimeo's library because it used Retrofit
@@ -76,7 +76,7 @@
 		2. Make cards clickable(to watch video)      DONE             
 		3A.make the network's state observable       DONE
 			   tested in subway
-		3B. infinite scrolling 		             DONE
+		3B. infinite scrolling                       DONE
 			   debug redundant network calls
 			   reset load on hide last Card
 		3C. Cache http response                      skipped
@@ -94,6 +94,6 @@
 		6B. pull-down refresh                        skipped
 		6C. search function                          skipped
 		7A. swipe to remove                          skipped
-		7B. cache images			     skipped
-		8.  onClick CardView animation		     skipped
+		7B. cache images                             skipped
+		8.  onClick CardView animation               skipped
 		9.  upload app to a free appstore            skipped
