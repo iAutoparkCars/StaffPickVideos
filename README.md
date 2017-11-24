@@ -50,12 +50,12 @@
   Had milestones and groomed product backlog, if you're curious, you can view it here:
   [milestone + backlog.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502666/milestone.backlog.pdf)
 
-0. After understanding the problem, I immediately made wireframes to draft designs, 
+* After understanding the problem, I immediately made wireframes to draft designs, 
    and got feedback from a couple of friends on the designs; they can be viewed here:
 	[Designs 1 and 2.pdf](https://github.com/iAutoparkCars/ETFQuery/files/1502668/Designs.1.and.2.pdf)  
 
 * 1st iteration Task Backlog
-
+	0. Needed proof of concept (proof that the design could implemented with existing API)
 	1. created my Vimeo app/client
 	2. Used Vimeo library to generate auth token
 	3. Learned how to authenticate and make GET requests with Vimeo's library because it used Retrofit
