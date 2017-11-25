@@ -18,8 +18,12 @@
 * Clear, functional, and responsive UI
 	 > UI is easy to navigate and informational. Network state is observed with a library. 
 
-### Using **one** 3rd party reactive library to observe changes in network state. 
-
+### Using **one** 3rd party reactive library
+*  Observe changes in network state. 
+	 > Network state is asynchronous in itself; so using reactive programming to observe this is very powerful.
+	 As the app gets larger and larger, observing a change in network state is extremely scalable and manageable 
+	 as you're able to print a message to the user when, for example, network connection goes from CONNECTED to DISONNECTING.
+	 
 ### Adding new features and functionality to the app is not necessary, but we appreciate...something extra. 
 * Four Categories
   > User can not only view Staff Pick (Recent) videos, but also Premieres, best of Month, and best of Year.
