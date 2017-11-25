@@ -72,7 +72,7 @@
 		5. separated the download video/download images tasks into new classes 
 
 * 2nd iteration Task Backlog:
-
+	
 	TO DO : 
 
 		1. load image using URL and async task       DONE
@@ -92,7 +92,7 @@
 			v.  data binding for views and async loading
 			vi. loading progress bar + custom styling
 			vii. app icon, display time, title   DONE
-		5. documentation
+		5.  changing project root names              skipped
 		6A. Vid uniqueness using HashSet             DONE 
 		6B. pull-down refresh                        skipped
 		6C. search function                          skipped
@@ -100,4 +100,4 @@
 		7B. cache images                             skipped
 		8.  onClick CardView animation               skipped
 		9.  upload app to a free appstore            skipped
-
+                ....
