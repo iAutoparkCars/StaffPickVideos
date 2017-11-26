@@ -27,7 +27,6 @@
 ### Adding new features and functionality to the app is not necessary, but we appreciate...something extra. 
 * See for yourself!
   > ![my version 1 compressed](https://user-images.githubusercontent.com/14288932/33238139-b53c76d2-d254-11e7-9227-d08eba254120.gif)
-  [Vimeo's staff picks]
 * Four Categories
   > User can not only view Staff Pick (Recent) videos, but also Premieres, best of Month, and best of Year.
 	This was to mock Vimeo's web UX experience on the app; notice the 4 categories in this link:
