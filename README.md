@@ -24,7 +24,7 @@
 	 As the app gets larger and larger, observing a change in network state is extremely scalable and manageable 
 	 as you're able to print a message to the user when, for example, network connection goes from CONNECTED to DISONNECTING.
 	 
-### Adding new features and functionality to the app is not necessary, but we appreciate...something extra. 
+### Adding new features and functionality to the app...
 * See for yourself!
   > ![my version 1 compressed](https://user-images.githubusercontent.com/14288932/33238139-b53c76d2-d254-11e7-9227-d08eba254120.gif)
 * Four Categories
