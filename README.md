@@ -7,15 +7,15 @@
 	Done to logically separate these components of the project, reduce coupling, and increase test-ability, mock-ability.
 2. Please view ***Development Process*** section below to know how the development was executed
 
-### You’ve inherited code...elevate it to your own standard of quality.
+### Organization and Architectural Clarity
 
 * A bug-free app that displays the Staff Picks list
 	 > App is bug-free to the extent that it's been usability tested by myself and a friend.
 * Architectural clarity
 	 > MVVM using Google's data binding
 * Software design that can scale
-   > Object-oriented design to semantically separate classes, implement, extend, etc.
-* Clear, functional, and responsive UI
+   	 > Object-oriented design to semantically separate classes, implement, extend, etc.
+* Clear, __custom__, functional, and responsive UI
 	 > UI is easy to navigate and informational. Network state is observed with a library. 
 
 ### Using **one** 3rd party reactive library
