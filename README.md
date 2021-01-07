@@ -48,8 +48,8 @@
 * Design
   > Custom-made views and UI design. Immersive (full-screen) and pleasant viewing experience.
   
-# Development Process
-### Agile
+# Process
+
   > Leverage my training in agile project management for the app to 
   work on tasks based on evolving priority.
   Three development iterations: Networking layer, Design, Refactoring/Documentation.
